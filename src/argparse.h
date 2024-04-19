@@ -53,7 +53,7 @@ class ArgumentParser
 
   public:
     ArgumentParser(
-        const std::string &name = "Main", const std::string &description = ""
+        const std::string &name = "Main parser", const std::string &description = ""
     );
     ArgumentParser &add_argument(
         const std::string flags[],
@@ -65,4 +65,5 @@ class ArgumentParser
     );
     Arguments parse_args(int argc, char *argv[]) const;
     const std::string get_help() const;
+    const void parser_error(std::string text) const;
 };

@@ -12,10 +12,7 @@ int main(int argc, char *argv[])
     parser.add_argument(
         new std::string[]{"-b"}, 1, TYPE::INT, "b", nullptr, "b"
     );
-    parser.add_argument(
-        new std::string[]{"-B"}, 1, TYPE::DOUBLE, "b", nullptr, "B"
-    );
-    parser.parse_args(argc, argv);
+    auto args = parser.parse_args(argc, argv);
     std::cout << "Here we are!\n";
     return 0;
 }

@@ -52,11 +52,11 @@ ArgumentParser &ArgumentParser::add_argument(
 {
     if (type == TYPE::NO_INPUT && callback == nullptr)
     {
-        error("Argument with type (NO_INPUT) must have a callback function.");
+        parser_error("Argument with type (NO_INPUT) must have a callback function.");
     }
     else if (type != TYPE::NO_INPUT && destination_name == "")
     {
-        error(
+        parser_error(
             "You must specify `destination_name` for `" + flags[0] +
             "` since its not of type NO_INPUT."
         );
@@ -66,12 +66,14 @@ ArgumentParser &ArgumentParser::add_argument(
         for (unsigned int j = 0; j < arguments.size(); j++)
             for (unsigned int k = 0; k < arguments[j].number_of_flags; k++)
                 if (flags[i] == arguments[j].flags[k])
-                    error("Flag: `" + flags[i] + "` already exists.");
+                    parser_error("Flag: `" + flags[i] + "` already exists.");
     // Check if destination_name already exists
     if (destination_name != "")
         for (unsigned int i = 0; i < arguments.size(); i++)
             if (destination_name == arguments[i].destination_name)
-                error("Destination Name: `" + destination_name + "` already exists.");
+                parser_error(
+                    "Destination Name: `" + destination_name + "` already exists."
+                );
     arguments.push_back(_Argument(
         flags, number_of_flags, type, destination_name, *new std::function(callback),
         help
@@ -95,7 +97,10 @@ Arguments ArgumentParser::parse_args(int argc, char *argv[]) const
             const _Argument *arg = flag_map[argv[i]];
             if (arg->destination_name != "")
             {
-                // TODO: Check if argv[i++] even exists
+                if (i + 1 >= argc)
+                    parser_error(
+                        "Flag `" + std::string(argv[i]) + "` needs an argument!"
+                    );
                 output_arguments.add_argument(
                     arg->destination_name, argv[++i], arg->type
                 );
@@ -110,4 +115,9 @@ Arguments ArgumentParser::parse_args(int argc, char *argv[]) const
 const std::string ArgumentParser::get_help() const
 {
     return "Help text";
+}
+
+const void ArgumentParser::parser_error(std::string text) const
+{
+    error("Error: " + this->name + ": " + text);
 }
