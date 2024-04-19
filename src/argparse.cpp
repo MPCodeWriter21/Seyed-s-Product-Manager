@@ -6,29 +6,28 @@
 #include <string>
 #include <unordered_map>
 
+Arguments::Arguments()
+{
+    n = 0;
+}
+
 template <typename T>
 void Arguments::add_argument(const std::string &name, const T *value, const TYPE &type)
 {
     arguments.push_back(Argument(name, (void *)value, type));
+    n++;
 }
 
-template <typename T> T Arguments::operator[](const std::string &name) const
+void *Arguments::get(const std::string &name) const
 {
     for (unsigned int i = 0; i < n; i++)
     {
         if (arguments[i].name == name)
         {
-            switch (arguments[i].type)
-            {
-            case TYPE::INT:
-                return *((int *)arguments[i].value);
-            case TYPE::DOUBLE:
-                return *((double *)arguments[i].value);
-            default:
-                return *((std::string *)arguments[i].value);
-            }
+            return arguments[i].value;
         }
     }
+    return nullptr;
 }
 
 ArgumentParser::ArgumentParser(const std::string &name, const std::string &description)
@@ -95,15 +94,39 @@ Arguments ArgumentParser::parse_args(int argc, char *argv[]) const
         if (flag_map.contains(argv[i]))
         {
             const _Argument *arg = flag_map[argv[i]];
-            if (arg->destination_name != "")
+            if (arg->destination_name != "" && arg->type != TYPE::BOOL)
             {
                 if (i + 1 >= argc)
                     parser_error(
                         "Flag `" + std::string(argv[i]) + "` needs an argument!"
                     );
-                output_arguments.add_argument(
-                    arg->destination_name, argv[++i], arg->type
-                );
+
+                std::string input_value(argv[++i]);
+                void *value;
+                switch (arg->type)
+                {
+                    case TYPE::INT: {
+                        int *x = new int(std::stoi(input_value));
+                        value = (void *)x;
+                        break;
+                    }
+                    case TYPE::DOUBLE: {
+                        double *y = new double(std::stod(input_value));
+                        value = (void *)y;
+                        break;
+                    }
+                    default: {
+                        std::string *z = new std::string(input_value);
+                        value = (void *)z;
+                    }
+                }
+
+                output_arguments.add_argument(arg->destination_name, value, arg->type);
+            }
+            else if (arg->destination_name != "" && arg->type == TYPE::BOOL)
+            {
+                bool *x = new bool(true);
+                output_arguments.add_argument(arg->destination_name, x, arg->type);
             }
             if (arg->callback != nullptr)
                 arg->callback();

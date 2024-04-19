@@ -25,14 +25,14 @@ struct Argument
 class Arguments
 {
   private:
-    std::string name, description;
     std::vector<Argument> arguments;
     unsigned int n;
 
   public:
+    Arguments();
     template <typename T>
     void add_argument(const std::string &name, const T *value, const TYPE &type);
-    template <typename T> T operator[](const std::string &name) const;
+    void *get(const std::string &name) const;
 };
 
 struct _Argument
