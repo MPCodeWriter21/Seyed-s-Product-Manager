@@ -1,4 +1,5 @@
 #include "argparse.h"
+#include "exceptions.h"
 #include <functional>
 #include <iostream>
 #include <ostream>
@@ -52,18 +53,25 @@ ArgumentParser &ArgumentParser::add_argument(
 {
     if (type == TYPE::NO_INPUT && callback == nullptr)
     {
-        throw std::invalid_argument(
+        error(
             "Argument with type (NO_INPUT) must have a callback function."
         );
     }
     else if (type != TYPE::NO_INPUT && destination_name == "")
     {
-        throw std::invalid_argument(
+        error(
             "You must specify `destination_name` for `" + flags[0] +
             "` since its not of type NO_INPUT."
         );
     }
-    // TODO: Check if any of the flags already exist
+    // Check if any of the flags already exist
+    for (unsigned int i = 0; i < number_of_flags; i++)
+        for (unsigned int j = 0; j < arguments.size(); j++)
+            for (unsigned int k = 0; k < arguments[j].number_of_flags; k++)
+                if (flags[i] == arguments[j].flags[k])
+                    error(
+                        "Flag: `" + flags[i] + "` already exists."
+                    );
     // TODO: Check if destination_name already exists
     arguments.push_back(_Argument(
         flags, number_of_flags, type, destination_name, *new std::function(callback),
