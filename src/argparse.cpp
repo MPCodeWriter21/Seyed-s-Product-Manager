@@ -3,7 +3,6 @@
 #include <functional>
 #include <iostream>
 #include <ostream>
-#include <stdexcept>
 #include <string>
 #include <unordered_map>
 
@@ -53,9 +52,7 @@ ArgumentParser &ArgumentParser::add_argument(
 {
     if (type == TYPE::NO_INPUT && callback == nullptr)
     {
-        error(
-            "Argument with type (NO_INPUT) must have a callback function."
-        );
+        error("Argument with type (NO_INPUT) must have a callback function.");
     }
     else if (type != TYPE::NO_INPUT && destination_name == "")
     {
@@ -69,10 +66,12 @@ ArgumentParser &ArgumentParser::add_argument(
         for (unsigned int j = 0; j < arguments.size(); j++)
             for (unsigned int k = 0; k < arguments[j].number_of_flags; k++)
                 if (flags[i] == arguments[j].flags[k])
-                    error(
-                        "Flag: `" + flags[i] + "` already exists."
-                    );
-    // TODO: Check if destination_name already exists
+                    error("Flag: `" + flags[i] + "` already exists.");
+    // Check if destination_name already exists
+    if (destination_name != "")
+        for (unsigned int i = 0; i < arguments.size(); i++)
+            if (destination_name == arguments[i].destination_name)
+                error("Destination Name: `" + destination_name + "` already exists.");
     arguments.push_back(_Argument(
         flags, number_of_flags, type, destination_name, *new std::function(callback),
         help
