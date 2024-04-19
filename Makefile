@@ -1,9 +1,16 @@
-build: clean
-	mkdir -p build
-	clang++ src/*.cpp -o build/out.o -std=c++20
-
-clean:
-	rm -rf build
+build:
+	mkdir -p bin
+	clang++ src/*.cpp -o bin/out.o -std=c++20
 
 run: build
-	./build/out.o
+	./bin/out.o
+
+build_debug: clean
+	mkdir -p bin/debug
+	clang++ --debug src/*.cpp -o bin/debug/out.o -std=c++20
+
+run_debug: build_debug
+	./bin/debug/out.o
+
+clean:
+	rm -rf bin

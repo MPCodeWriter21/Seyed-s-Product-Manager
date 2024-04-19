@@ -65,46 +65,27 @@ ArgumentParser &ArgumentParser::add_argument(
     }
     // TODO: Check if any of the flags already exist
     // TODO: Check if destination_name already exists
-    std::cout << flags[0] << std::endl;
-    std::cout << &callback << std::endl;
     arguments.push_back(_Argument(
         flags, number_of_flags, type, destination_name, *new std::function(callback),
         help
     ));
-    std::cout << &arguments[arguments.size() - 1].callback << std::endl;
     return *this;
 }
 
 Arguments ArgumentParser::parse_args(int argc, char *argv[]) const
 {
-    // Currently debugging this part!
-    // 
-    // --help
-    // 000000FE1C9BF600
-    // 000002BF85D326A0
-    // -a
-    // 000000FE1C9BF788
-    // 000002BF85D34260
-    // --help
-    // -a
-    // 000002BF85D34260
-    // Hellooooo
-    // Here we are!
-    //
     Arguments output_arguments;
-    std::unordered_map<std::string, _Argument *> flag_map;
-    for (_Argument arg : arguments)
+    std::unordered_map<std::string, const _Argument *> flag_map;
+    for (unsigned int i = 0; i < arguments.size(); i++)
     {
-        for (unsigned int i = 0; i < arg.number_of_flags; i++)
-            flag_map[arg.flags[i]] = &arg;
+        for (unsigned int j = 0; j < arguments[i].number_of_flags; j++)
+            flag_map[arguments[i].flags[j]] = &arguments[i];
     }
     for (int i = 0; i < argc; i++)
     {
         if (flag_map.contains(argv[i]))
         {
-            std::cout << argv[i] << std::endl;
-            _Argument *arg = flag_map[argv[i]];
-            std::cout << arg->flags[0] << std::endl;
+            const _Argument *arg = flag_map[argv[i]];
             if (arg->destination_name != "")
             {
                 // TODO: Check if argv[i++] even exists
@@ -112,7 +93,6 @@ Arguments ArgumentParser::parse_args(int argc, char *argv[]) const
                     arg->destination_name, argv[++i], arg->type
                 );
             }
-            std::cout << &arg->callback << std::endl;
             if (arg->callback != nullptr)
                 arg->callback();
         }
