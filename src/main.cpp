@@ -14,7 +14,8 @@ int main(int argc, char *argv[])
         new std::string[]{"-c"}, 1, TYPE::DOUBLE, "c", nullptr, "c is a double!"
     );
     parser.add_argument(
-        new std::string[]{"-v", "--verbose"}, 2, TYPE::BOOL, "verbose", nullptr, "Use this to get more info."
+        new std::string[]{"-v", "--verbose"}, 2, TYPE::BOOL, "verbose", nullptr,
+        "Use this to get more info."
     );
     auto args = parser.parse_args(argc, argv);
     std::cout << "Here we are!\n";
