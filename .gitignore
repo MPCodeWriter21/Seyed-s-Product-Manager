@@ -34,3 +34,6 @@
 # Build and bin
 build/
 bin/
+
+# Database
+*.sqlite3

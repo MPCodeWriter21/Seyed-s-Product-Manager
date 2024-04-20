@@ -1,9 +1,9 @@
-#include <exception>
+#include <cstdlib>
 #include <iostream>
 #include <string>
 
-void error(std::string text)
+void error(std::string text, bool exit = true)
 {
     std::cerr << text << std::endl;
-    throw std::exception();
+    std::exit(1);
 }
