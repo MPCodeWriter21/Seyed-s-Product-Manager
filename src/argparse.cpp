@@ -6,6 +6,8 @@
 #include <string>
 #include <unordered_map>
 
+// Arguments
+
 Arguments::Arguments()
 {
     n = 0;
@@ -29,6 +31,8 @@ void *Arguments::get(const std::string &name) const
     }
     return nullptr;
 }
+
+// ArgumentParser
 
 ArgumentParser::ArgumentParser(const std::string &name, const std::string &description)
 {
