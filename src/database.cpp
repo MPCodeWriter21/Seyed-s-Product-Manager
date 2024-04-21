@@ -25,6 +25,12 @@ int Database::open_db(const char *path)
     return status_code;
 }
 
+void Database::close_db()
+{
+    if (db != nullptr)
+        sqlite3_close(db);
+}
+
 int Database::execute(const std::string &command)
 {
     status_code = sqlite3_exec(db, command.c_str(), NULL, 0, &error_message);
@@ -69,6 +75,12 @@ void Database::database_error(const std::string &message) const
 
 Database::~Database()
 {
-    if (db != nullptr)
-        sqlite3_close(db);
+    this->close_db();
+}
+
+// DatabaseObject
+
+DatabaseObject::DatabaseObject(std::string items)
+{
+    this->items_string = items;
 }
