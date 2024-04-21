@@ -1,3 +1,4 @@
+#include "database.h"
 #include "product.h"
 #include "sqlite/sqlite3.h"
 #include <iostream>
@@ -93,22 +94,35 @@ void Products::add_product(
     const std::string &description
 )
 {
-    if (execute(
-            "INSERT INTO products(name, price, available_count, description) "
-            "VALUES(\"" +
-            name + "\", " + std::to_string(price) + ", " +
-            std::to_string(available_count) + ", \"" + description + "\")"
-        ) != SQLITE_OK)
+    execute(
+        "INSERT INTO products(name, price, available_count, description) "
+        "VALUES(\"" +
+        name + "\", " + std::to_string(price) + ", " + std::to_string(available_count) +
+        ", \"" + description + "\")"
+    );
+    if (status_code != SQLITE_OK)
         std::cerr << error_message << std::endl;
 }
 
-const Product *Products::get_product(const unsigned int &id) const
+const Product *Products::get_product(const unsigned int &id)
 {
-    // for (unsigned int i = 0; i < products.size(); i++)
-    // {
-    //     if (products[i].get_id() == id)
-    //         return &products[i];
-    // }
+    std::vector<Record> records =
+        execute("SELECT * FROM products WHERE id=" + std::to_string(id));
+
+    // Found no product with the id
+    if (records.size() < 1)
+        return nullptr;
+    // Found more than 1 product with the same id. (Should be impossible)
+    if (records.size() > 1)
+        database_error("Found more than one product with id=" + std::to_string(id));
+    else
+    {
+        Record &product_info = records[0];
+        return new Product(
+            std::stoi(product_info[0]), product_info[1], std::stod(product_info[2]),
+            std::stoi(product_info[3]), product_info[4]
+        );
+    }
     return nullptr;
 }
 

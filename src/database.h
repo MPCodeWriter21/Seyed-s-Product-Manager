@@ -2,6 +2,9 @@
 
 #include "sqlite/sqlite3.h"
 #include <string>
+#include <vector>
+
+using Record = std::vector<std::string>;
 
 class Database
 {
@@ -10,7 +13,7 @@ class Database
     Database(const char *path);
     int open_db(const char *path);
     void close_db();
-    int execute(const std::string &command);
+    std::vector<Record> execute(const std::string &command);
     int create_table(
         const std::string &table_name, const std::string &content, bool exists_ok = true
     );

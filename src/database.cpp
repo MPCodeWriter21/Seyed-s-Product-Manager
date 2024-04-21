@@ -1,6 +1,7 @@
 #include "database.h"
 #include "exceptions.h"
 #include "sqlite/sqlite3.h"
+#include <vector>
 
 Database::Database()
 {
@@ -31,10 +32,28 @@ void Database::close_db()
         sqlite3_close(db);
 }
 
-int Database::execute(const std::string &command)
+int _select_callback(void *data, int num_fields, char **fields, char **col_names)
 {
-    status_code = sqlite3_exec(db, command.c_str(), NULL, 0, &error_message);
-    return status_code;
+    std::vector<Record> *records = static_cast<std::vector<Record> *>(data);
+    try
+    {
+        records->emplace_back(fields, fields + num_fields);
+    }
+    catch (...)
+    {
+        // abort select on failure, don't let exception propogate thru sqlite3
+        // call-stack
+        return 1;
+    }
+    return 0;
+}
+
+std::vector<Record> Database::execute(const std::string &command)
+{
+    std::vector<Record> records;
+    status_code =
+        sqlite3_exec(db, command.c_str(), _select_callback, &records, &error_message);
+    return records;
 }
 
 /* Usage example:

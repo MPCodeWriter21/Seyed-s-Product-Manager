@@ -50,7 +50,7 @@ class Products : protected Database
         const unsigned int &available_count,
         const std::string &description
     );
-    const Product *get_product(const unsigned int &id) const;
+    const Product *get_product(const unsigned int &id);
     const std::vector<Product> &get_sold_out_products() const;
     const std::vector<Product> &list_products(const unsigned int &id) const;
     const bool save_database() const;
