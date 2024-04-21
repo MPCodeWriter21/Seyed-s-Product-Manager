@@ -1,5 +1,5 @@
 #include "argparse.h"
-#include "database.h"
+#include "product.h"
 #include <iostream>
 #include <string>
 
@@ -7,17 +7,16 @@ int main(int argc, char *argv[])
 {
     ArgumentParser parser("Main Parser", "Seyed's Product Manager");
     parser.add_argument(
-        new std::string[]{"-t", "--table"}, 2, TYPE::STRING, "table", nullptr,
-        "Table Name"
+        new std::string[]{"-a", "--add-product"}, 2, TYPE::STRING, "product", nullptr,
+        "Product name"
     );
     auto args = parser.parse_args(argc, argv);
-    std::string *table_name = (std::string *)args.get("table");
-    if (table_name == nullptr)
-        parser.parser_error("You must specify the table name. (Use -t)");
-    std::cout << "Table name is: " << *table_name << std::endl;
-    Database db;
-    db.open_db("./db.sqlite3");
-    db.create_table(*table_name, "id INTEGER PRIMARY KEY, NAME TEXT");
+    std::string *product_name = (std::string *)args.get("product");
+    if (product_name == nullptr)
+        parser.parser_error("You must specify the product name. (Use -a)");
+    std::cout << "Product name is: " << *product_name << std::endl;
+    Products products("./db.sqlite3");
+    products.add_product(*product_name, 1000, 1, "Some new product.");
     std::cout << "Done!\n";
     return 0;
 }
