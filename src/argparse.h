@@ -1,6 +1,8 @@
 /*
  * A simple command-line argument parser inspired by Python's `argparse` module.
  */
+#pragma once
+
 #include <functional>
 #include <string>
 #include <unordered_map>
@@ -8,6 +10,7 @@
 
 enum TYPE
 {
+    // TODO: Add a type that represents the options that do not use flags
     NO_INPUT,
     BOOL,
     STRING,
