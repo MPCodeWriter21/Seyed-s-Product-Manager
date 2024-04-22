@@ -2,6 +2,7 @@
 #include "exceptions.h"
 #include <cstdlib>
 #include <functional>
+#include <ios>
 #include <iostream>
 #include <ostream>
 #include <string>
@@ -89,7 +90,7 @@ ArgumentParser &ArgumentParser::add_argument(
     return *this;
 }
 
-Arguments ArgumentParser::parse_args(int argc, char *argv[]) const
+Arguments ArgumentParser::parse_args(int argc, char *argv[])
 {
     Arguments output_arguments;
     std::unordered_map<std::string, const _Argument *> flag_map;
@@ -98,7 +99,8 @@ Arguments ArgumentParser::parse_args(int argc, char *argv[]) const
         for (unsigned int j = 0; j < arguments[i].number_of_flags; j++)
             flag_map[arguments[i].flags[j]] = &arguments[i];
     }
-    for (int i = 0; i < argc; i++)
+    filename = argv[0];
+    for (int i = 1; i < argc; i++)
     {
         if (flag_map.contains(argv[i]))
         {
@@ -146,7 +148,39 @@ Arguments ArgumentParser::parse_args(int argc, char *argv[]) const
 
 const std::string ArgumentParser::get_help_text() const
 {
-    return "Help text";
+    std::string help_text = "usage: " + filename;
+    std::string dest = "";
+    for (unsigned int i = 0; i < arguments.size(); i++)
+    {
+        help_text += " [" + arguments[i].flags[0];
+        dest = arguments[i].destination_name;
+        if (dest != "")
+        {
+            std::transform(dest.begin(), dest.end(), dest.begin(), ::toupper);
+            help_text += " " + dest;
+        }
+        help_text += "]";
+    }
+    help_text += "\n\noptions:";
+    for (unsigned int i = 0; i < arguments.size(); i++)
+    {
+        help_text += "\n  ";
+        for (unsigned int j = 0; j < arguments[i].number_of_flags; j++)
+        {
+            if (j > 0)
+                help_text += ", ";
+            help_text += arguments[i].flags[j];
+            dest = arguments[i].destination_name;
+            if (dest != "")
+            {
+                std::transform(dest.begin(), dest.end(), dest.begin(), ::toupper);
+                help_text += " " + dest;
+            }
+        }
+        if (arguments[i].help != "")
+            help_text += "\t\t" + arguments[i].help;
+    }
+    return help_text;
 }
 
 const void ArgumentParser::parser_error(std::string text) const

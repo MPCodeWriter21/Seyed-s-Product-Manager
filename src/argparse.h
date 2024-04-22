@@ -50,10 +50,6 @@ struct _Argument
 
 class ArgumentParser
 {
-  private:
-    std::string name, description;
-    std::vector<_Argument> arguments;
-
   public:
     ArgumentParser(
         const std::string &name = "Main parser", const std::string &description = ""
@@ -66,7 +62,12 @@ class ArgumentParser
         const std::function<void()> &callback = nullptr,
         const std::string help = ""
     );
-    Arguments parse_args(int argc, char *argv[]) const;
+    Arguments parse_args(int argc, char *argv[]);
     const std::string get_help_text() const;
     const void parser_error(std::string text) const;
+
+  private:
+    std::string name, description;
+    std::vector<_Argument> arguments;
+    std::string filename;
 };
