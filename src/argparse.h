@@ -67,6 +67,6 @@ class ArgumentParser
         const std::string help = ""
     );
     Arguments parse_args(int argc, char *argv[]) const;
-    const std::string get_help() const;
+    const std::string get_help_text() const;
     const void parser_error(std::string text) const;
 };

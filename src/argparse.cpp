@@ -1,5 +1,6 @@
 #include "argparse.h"
 #include "exceptions.h"
+#include <cstdlib>
 #include <functional>
 #include <iostream>
 #include <ostream>
@@ -40,7 +41,11 @@ ArgumentParser::ArgumentParser(const std::string &name, const std::string &descr
     this->description = description;
     this->add_argument(
         new std::string[]{"--help", "-h"}, 2, TYPE::NO_INPUT, "",
-        [this]() { std::cout << get_help() << std::endl; }, "Shows this help text."
+        [this]() {
+            std::cout << get_help_text() << std::endl;
+            std::exit(0);
+        },
+        "Shows this help text."
     );
 }
 
@@ -139,7 +144,7 @@ Arguments ArgumentParser::parse_args(int argc, char *argv[]) const
     return output_arguments;
 }
 
-const std::string ArgumentParser::get_help() const
+const std::string ArgumentParser::get_help_text() const
 {
     return "Help text";
 }
