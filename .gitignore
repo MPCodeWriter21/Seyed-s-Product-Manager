@@ -37,3 +37,4 @@ bin/
 
 # Database
 *.sqlite3
+.crash_report.log
