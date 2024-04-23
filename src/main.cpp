@@ -2,13 +2,14 @@
 #include "product.h"
 #include <iostream>
 #include <string>
+#include <vector>
 
 int main(int argc, char *argv[])
 {
     ArgumentParser parser("Main Parser", "Seyed's Product Manager");
     parser.add_argument(
         new std::string[]{}, 0, TYPE::STRING, "command", nullptr,
-        "Commands: add-product, get-product, list-products"
+        "Commands: add-product, get-product, list-products, list-sold-out"
     );
     parser.add_argument(
         new std::string[]{"-i", "--product-id"}, 2, TYPE::INT, "product-id", nullptr,
@@ -97,26 +98,30 @@ int main(int argc, char *argv[])
                       << std::endl;
         else
         {
-            std::cout << "Product ID               : " << product->get_id()
-                      << std::endl;
-            std::cout << "Name                     : " << product->get_name()
-                      << std::endl;
-            std::cout << "Price                    : " << product->get_price()
-                      << std::endl;
-            std::cout << "No. of Available Products: " << product->get_available_count()
-                      << std::endl;
-            std::cout << "Product Descriptions     : " << product->get_id()
-                      << std::endl;
+            product->show_info();
         }
     }
     else if (*command == "list-products")
     {
-        // TODO: Do this
+        const std::vector<Product> &list_of_products = products.list_products();
+        for (unsigned int i = 0; i < list_of_products.size(); i++)
+        {
+            list_of_products[i].show_info();
+            std::cout << std::endl;
+        }
+    }
+    else if (*command == "list-sold-out")
+    {
+        const std::vector<Product> &list_of_products = products.get_sold_out_products();
+        for (unsigned int i = 0; i < list_of_products.size(); i++)
+        {
+            list_of_products[i].show_info();
+            std::cout << std::endl;
+        }
     }
     else
         parser.parser_error(
             "You must use one of the command that are available! Check --help."
         );
-    std::cout << "Done!\n";
     return 0;
 }

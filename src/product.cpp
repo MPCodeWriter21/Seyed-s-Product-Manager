@@ -3,6 +3,7 @@
 #include "sqlite/sqlite3.h"
 #include <iostream>
 #include <string>
+#include <vector>
 
 // Product
 
@@ -80,6 +81,15 @@ inline void Product::call_callbacks() const
         on_change_callback(*this);
 }
 
+const void Product::show_info() const
+{
+    std::cout << "Product ID               : " << get_id() << std::endl;
+    std::cout << "Name                     : " << get_name() << std::endl;
+    std::cout << "Price                    : " << get_price() << std::endl;
+    std::cout << "No. of Available Products: " << get_available_count() << std::endl;
+    std::cout << "Product Descriptions     : " << get_id() << std::endl;
+}
+
 // Products
 
 Products::Products(std::string path) : Database(path.c_str())
@@ -126,32 +136,38 @@ const Product *Products::get_product(const unsigned int &id)
     return nullptr;
 }
 
-const std::vector<Product> &Products::list_products(const unsigned int &id) const
+const std::vector<Product> &Products::list_products()
 {
-    // return products;
+    std::vector<Product> *products = new std::vector<Product>();
+    std::vector<Record> records = execute("SELECT * FROM products");
+    for (unsigned int i = 0; i < records.size(); i++)
+    {
+        const Record &product_info = records[i];
+        products->push_back(Product(
+            std::stoi(product_info[0]), product_info[1], std::stod(product_info[2]),
+            std::stoi(product_info[3]), product_info[4]
+        ));
+    }
+    return *products;
 }
 
-// Returns true on success
-const bool Products::save_database() const
+const std::vector<Product> &Products::get_sold_out_products()
 {
-    // if (!path.empty())
-    //     return save_database(path);
-    return false;
-}
-
-const bool Products::save_database(std::string path) const
-{
-    // TODO: Implement the database logic
-    return false;
+    std::vector<Product> *products = new std::vector<Product>();
+    std::vector<Record> records =
+        execute("SELECT * FROM products WHERE available_count=0");
+    for (unsigned int i = 0; i < records.size(); i++)
+    {
+        const Record &product_info = records[i];
+        products->push_back(Product(
+            std::stoi(product_info[0]), product_info[1], std::stod(product_info[2]),
+            std::stoi(product_info[3]), product_info[4]
+        ));
+    }
+    return *products;
 }
 
 void Products::set_database_path(std::string path)
 {
-    // this->path = path;
-}
-
-Products *Products::load_from_database(std::string path)
-{
-    // TODO: Implement the database logic
-    return nullptr;
+    this->open_db(path.c_str());
 }
