@@ -15,7 +15,8 @@ class Product : public DatabaseObject
         std::string name,
         double price,
         unsigned int available_count,
-        std::string description = ""
+        std::string description = "",
+        std::function<void(Product &)> on_change_callback = nullptr
     );
 
     const unsigned int &get_id() const;
@@ -29,10 +30,10 @@ class Product : public DatabaseObject
     const void set_description(const std::string description);
     const void show_info() const;
 
-    std::function<void(Product)> on_change_callback;
+    std::function<void(Product &)> on_change_callback;
 
   protected:
-    inline void call_callbacks() const;
+    inline void call_callbacks();
 
     unsigned int id;
     std::string name;
@@ -51,8 +52,11 @@ class Products : protected Database
         const unsigned int &available_count,
         const std::string &description
     );
-    const Product *get_product(const unsigned int &id);
+    Product *get_product(const unsigned int &id);
     const std::vector<Product> &list_products();
     const std::vector<Product> &get_sold_out_products();
     void set_database_path(std::string path);
+
+  protected:
+    void save_changed_product(Product &);
 };

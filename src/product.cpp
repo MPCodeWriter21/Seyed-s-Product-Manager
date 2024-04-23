@@ -18,15 +18,13 @@ Product::Product(
     std::string name,
     double price,
     unsigned int available_count,
-    std::string description
+    std::string description,
+    std::function<void(Product &)> on_change_callback
 )
-    : DatabaseObject(items)
+    : DatabaseObject(items), id(id), name(name), price(price),
+      available_count(available_count), description(description),
+      on_change_callback(on_change_callback)
 {
-    this->id = id;
-    this->name = name;
-    this->price = price;
-    this->available_count = available_count;
-    this->description = description;
 }
 
 const unsigned int &Product::get_id() const
@@ -75,7 +73,7 @@ const void Product::set_description(const std::string description)
     call_callbacks();
 }
 
-inline void Product::call_callbacks() const
+inline void Product::call_callbacks()
 {
     if (this->on_change_callback != nullptr)
         on_change_callback(*this);
@@ -111,10 +109,10 @@ void Products::add_product(
         ", \"" + description + "\")"
     );
     if (status_code != SQLITE_OK)
-        std::cerr << error_message << std::endl;
+        database_error("Error adding new product: " + (std::string)error_message);
 }
 
-const Product *Products::get_product(const unsigned int &id)
+Product *Products::get_product(const unsigned int &id)
 {
     std::vector<Record> records =
         execute("SELECT * FROM products WHERE id=" + std::to_string(id));
@@ -130,7 +128,8 @@ const Product *Products::get_product(const unsigned int &id)
         Record &product_info = records[0];
         return new Product(
             std::stoi(product_info[0]), product_info[1], std::stod(product_info[2]),
-            std::stoi(product_info[3]), product_info[4]
+            std::stoi(product_info[3]), product_info[4],
+            [this](Product &p) { this->save_changed_product(p); }
         );
     }
     return nullptr;
@@ -145,7 +144,8 @@ const std::vector<Product> &Products::list_products()
         const Record &product_info = records[i];
         products->push_back(Product(
             std::stoi(product_info[0]), product_info[1], std::stod(product_info[2]),
-            std::stoi(product_info[3]), product_info[4]
+            std::stoi(product_info[3]), product_info[4],
+            [this](Product &p) { this->save_changed_product(p); }
         ));
     }
     return *products;
@@ -161,7 +161,8 @@ const std::vector<Product> &Products::get_sold_out_products()
         const Record &product_info = records[i];
         products->push_back(Product(
             std::stoi(product_info[0]), product_info[1], std::stod(product_info[2]),
-            std::stoi(product_info[3]), product_info[4]
+            std::stoi(product_info[3]), product_info[4],
+            [this](Product &p) { this->save_changed_product(p); }
         ));
     }
     return *products;
@@ -170,4 +171,14 @@ const std::vector<Product> &Products::get_sold_out_products()
 void Products::set_database_path(std::string path)
 {
     this->open_db(path.c_str());
+}
+
+void Products::save_changed_product(Product &product)
+{
+    execute(
+        "UPDATE products SET name=\"" + product.get_name() +
+        "\", price=" + std::to_string(product.get_price()) + ", available_count=" +
+        std::to_string(product.get_available_count()) + ", description=\"" +
+        product.get_description() + "\" WHERE id=" + std::to_string(product.get_id())
+    );
 }

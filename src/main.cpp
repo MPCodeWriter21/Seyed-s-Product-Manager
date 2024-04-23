@@ -9,7 +9,7 @@ int main(int argc, char *argv[])
     ArgumentParser parser("Main Parser", "Seyed's Product Manager");
     parser.add_argument(
         new std::string[]{}, 0, TYPE::STRING, "command", nullptr,
-        "Commands: add-product, get-product, list-products, list-sold-out"
+        "Commands: add-product, get-product, list-products, list-sold-out, edit-product"
     );
     parser.add_argument(
         new std::string[]{"-i", "--product-id"}, 2, TYPE::INT, "product-id", nullptr,
@@ -122,6 +122,44 @@ int main(int argc, char *argv[])
         {
             list_of_products[i].show_info();
             std::cout << std::endl;
+        }
+    }
+    else if (*command == "edit-product")
+    {
+        int *id = (int *)args.get("product-id");
+        std::string *name = (std::string *)args.get("product-name");
+        double *price = (double *)args.get("price");
+        int *available_count = (int *)args.get("available-count");
+        std::string *description = (std::string *)args.get("description");
+        // Checks to see if valid arguments were supplied to the program
+        if (id == nullptr)
+        {
+            parser.show_help();
+            parser.parser_error("You must specify the product's ID.");
+        }
+        if (name == nullptr && price == nullptr && available_count == nullptr &&
+            description == nullptr)
+        {
+            parser.show_help();
+            parser.parser_error(
+                "What exactly are you planning to change about the product?"
+            );
+        }
+        std::cout << "Modifying `" << *id << "`..." << std::endl;
+        Product *product = products.get_product(*id);
+        if (product == nullptr)
+            std::cerr << "Could not find a product with id=" + std::to_string(*id)
+                      << std::endl;
+        else
+        {
+            if (name != nullptr)
+                product->set_name(*name);
+            if (price != nullptr)
+                product->set_price(*price);
+            if (available_count != nullptr)
+                product->set_available_count(*available_count);
+            if (description != nullptr)
+                product->set_description(*description);
         }
     }
     else
