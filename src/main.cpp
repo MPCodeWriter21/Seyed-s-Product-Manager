@@ -7,6 +7,14 @@ int main(int argc, char *argv[])
 {
     ArgumentParser parser("Main Parser", "Seyed's Product Manager");
     parser.add_argument(
+        new std::string[]{}, 0, TYPE::STRING, "command",
+        nullptr, "Some command"
+    );
+    parser.add_argument(
+        new std::string[]{}, 0, TYPE::STRING, "command2",
+        nullptr, "Some command"
+    );
+    parser.add_argument(
         new std::string[]{"-a", "--add-product"}, 2, TYPE::STRING, "product_to_add",
         nullptr, "Product name"
     );
@@ -16,6 +24,10 @@ int main(int argc, char *argv[])
     );
     auto args = parser.parse_args(argc, argv);
     Products products("./db.sqlite3");
+    std::string *command = (std::string *)args.get("command");
+    std::cout << *command << std::endl;
+    std::string *command2 = (std::string *)args.get("command2");
+    std::cout << *command2 << std::endl;
     std::string *product_to_add = (std::string *)args.get("product_to_add");
     int *product_to_get = (int *)args.get("product_to_get");
     if (product_to_add != nullptr)

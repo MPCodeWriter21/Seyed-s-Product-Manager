@@ -10,7 +10,6 @@
 
 enum TYPE
 {
-    // TODO: Add a type that represents the options that do not use flags
     NO_INPUT,
     BOOL,
     STRING,

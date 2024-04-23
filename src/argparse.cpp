@@ -2,11 +2,11 @@
 #include "exceptions.h"
 #include <cstdlib>
 #include <functional>
-#include <ios>
 #include <iostream>
 #include <ostream>
 #include <string>
 #include <unordered_map>
+#include <vector>
 
 // Arguments
 
@@ -94,8 +94,11 @@ Arguments ArgumentParser::parse_args(int argc, char *argv[])
 {
     Arguments output_arguments;
     std::unordered_map<std::string, const _Argument *> flag_map;
+    std::vector<const _Argument *> flagless_arguments;
     for (unsigned int i = 0; i < arguments.size(); i++)
     {
+        if (arguments[i].number_of_flags == 0)
+            flagless_arguments.push_back(&arguments[i]);
         for (unsigned int j = 0; j < arguments[i].number_of_flags; j++)
             flag_map[arguments[i].flags[j]] = &arguments[i];
     }
@@ -142,6 +145,34 @@ Arguments ArgumentParser::parse_args(int argc, char *argv[])
             if (arg->callback != nullptr)
                 arg->callback();
         }
+        else
+        {
+            if (flagless_arguments.size() > 0)
+            {
+                const _Argument *arg = flagless_arguments[0];
+                std::string input_value(argv[i]);
+                void *value;
+                switch (arg->type)
+                {
+                    case TYPE::INT: {
+                        int *x = new int(std::stoi(input_value));
+                        value = (void *)x;
+                        break;
+                    }
+                    case TYPE::DOUBLE: {
+                        double *y = new double(std::stod(input_value));
+                        value = (void *)y;
+                        break;
+                    }
+                    default: {
+                        std::string *z = new std::string(input_value);
+                        value = (void *)z;
+                    }
+                }
+                output_arguments.add_argument(arg->destination_name, value, arg->type);
+                flagless_arguments.erase(flagless_arguments.begin());
+            }
+        }
     }
     return output_arguments;
 }
@@ -149,9 +180,16 @@ Arguments ArgumentParser::parse_args(int argc, char *argv[])
 const std::string ArgumentParser::get_help_text() const
 {
     std::string help_text = "usage: " + filename;
+    unsigned int usage_filename_length = help_text.size();
+    std::vector<const _Argument *> positional_arguments;
     std::string dest = "";
     for (unsigned int i = 0; i < arguments.size(); i++)
     {
+        if (arguments[i].number_of_flags == 0)
+        {
+            positional_arguments.push_back(&arguments[i]);
+            continue;
+        }
         help_text += " [" + arguments[i].flags[0];
         dest = arguments[i].destination_name;
         if (dest != "")
@@ -161,9 +199,30 @@ const std::string ArgumentParser::get_help_text() const
         }
         help_text += "]";
     }
-    help_text += "\n\noptions:";
+    if (positional_arguments.size())
+    {
+        help_text += "\n";
+        for (unsigned int _ = 0; _ < usage_filename_length; _++)
+            help_text += " ";
+    }
+    for (unsigned int i = 0; i < positional_arguments.size(); i++)
+    {
+        help_text += " [" + positional_arguments[i]->destination_name + "]";
+    }
+    if (positional_arguments.size())
+        help_text += "\n\nPositional Arguments:\n";
+    for (unsigned int i = 0; i < positional_arguments.size(); i++)
+    {
+        help_text += "  " + positional_arguments[i]->destination_name + "\t\t" +
+                     positional_arguments[i]->help + "\n";
+    }
+    if (help_text[help_text.size() - 1] != '\n')
+        help_text += "\n";
+    help_text += "\nOptions:";
     for (unsigned int i = 0; i < arguments.size(); i++)
     {
+        if (arguments[i].number_of_flags == 0)
+            continue;
         help_text += "\n  ";
         for (unsigned int j = 0; j < arguments[i].number_of_flags; j++)
         {
@@ -176,6 +235,12 @@ const std::string ArgumentParser::get_help_text() const
                 std::transform(dest.begin(), dest.end(), dest.begin(), ::toupper);
                 help_text += " " + dest;
             }
+        }
+        if (arguments[i].number_of_flags == 0)
+        {
+            dest = arguments[i].destination_name;
+            std::transform(dest.begin(), dest.end(), dest.begin(), ::toupper);
+            help_text += " " + dest;
         }
         if (arguments[i].help != "")
             help_text += "\t\t" + arguments[i].help;
