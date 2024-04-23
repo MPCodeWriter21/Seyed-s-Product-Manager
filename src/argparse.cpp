@@ -190,6 +190,8 @@ const std::string ArgumentParser::get_help_text() const
     unsigned int usage_filename_length = help_text.size();
     std::vector<const _Argument *> positional_arguments;
     std::string dest = "";
+
+    // Generate the usage statement
     for (unsigned int i = 0; i < arguments.size(); i++)
     {
         if (arguments[i].number_of_flags == 0)
@@ -216,6 +218,8 @@ const std::string ArgumentParser::get_help_text() const
     {
         help_text += " [" + positional_arguments[i]->destination_name + "]";
     }
+
+    // Add positional arguments to the help text (if any)
     if (positional_arguments.size())
         help_text += "\n\nPositional Arguments:\n";
     for (unsigned int i = 0; i < positional_arguments.size(); i++)
@@ -225,6 +229,8 @@ const std::string ArgumentParser::get_help_text() const
     }
     if (help_text[help_text.size() - 1] != '\n')
         help_text += "\n";
+
+    // Add flags to the help text
     help_text += "\nOptions:";
     for (unsigned int i = 0; i < arguments.size(); i++)
     {

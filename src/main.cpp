@@ -34,6 +34,11 @@ int main(int argc, char *argv[])
     auto args = parser.parse_args(argc, argv);
     Products products("./db.sqlite3");
     std::string *command = (std::string *)args.get("command");
+    if (command == nullptr)
+    {
+        parser.show_help();
+        parser.parser_error("Please enter a command!");
+    }
     if (*command == "add-product")
     {
         int *id = (int *)args.get("product-id");

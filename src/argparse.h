@@ -53,6 +53,7 @@ class ArgumentParser
     ArgumentParser(
         const std::string &name = "Main parser", const std::string &description = ""
     );
+    // TODO: Add a way to make the arguments required
     ArgumentParser &add_argument(
         const std::string flags[],
         const unsigned int number_of_flags,
