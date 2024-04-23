@@ -30,3 +30,8 @@
 *.exe
 *.out
 *.app
+/gui-testing/Project imgui/x64/Debug
+/gui-testing/.vs/Project imgui/v17
+/gui-testing/.vs/Project imgui/v15
+/gui-testing/x64/Debug
+/gui-testing/.vs/Project imgui/FileContentIndex
