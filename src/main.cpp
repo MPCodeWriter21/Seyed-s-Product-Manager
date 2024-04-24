@@ -1,5 +1,6 @@
 #include "argparse.h"
 #include "product.h"
+#include "users.h"
 #include <iostream>
 #include <string>
 #include <vector>
@@ -9,7 +10,8 @@ int main(int argc, char *argv[])
     ArgumentParser parser("Main Parser", "Seyed's Product Manager");
     parser.add_argument(
         new std::string[]{}, 0, TYPE::STRING, "command", nullptr,
-        "Commands: add-product, get-product, list-products, list-sold-out, edit-product"
+        "Commands: add-product, get-product, list-products, list-sold-out, "
+        "edit-product, add-user"
     );
     parser.add_argument(
         new std::string[]{"-i", "--product-id"}, 2, TYPE::INT, "product-id", nullptr,
@@ -32,7 +34,18 @@ int main(int argc, char *argv[])
         "description", nullptr, "Product Description"
     );
     auto args = parser.parse_args(argc, argv);
-    Products products("./db.sqlite3");
+
+    // Init users' database
+    std::string *password = new std::string("");
+    Users users("./users.sqlite3", "Seyed", password);
+    if (*password != "")
+        std::cout << "Root User:\n\tUsername: Seyed\n\tPassword: " << *password
+                  << "\n\n\n";
+
+    // Products' database
+    Products products("./products.sqlite3");
+
+    // Get the command from the parser and check what options is chosen by the user
     std::string *command = (std::string *)args.get("command");
     if (command == nullptr)
     {
@@ -161,6 +174,10 @@ int main(int argc, char *argv[])
             if (description != nullptr)
                 product->set_description(*description);
         }
+    }
+    else if (*command == "add-user")
+    {
+        // TODO: ...
     }
     else
         parser.parser_error(
