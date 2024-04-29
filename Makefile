@@ -1,18 +1,27 @@
-build:
-	mkdir -p bin
-	clang src/sqlite/sqlite3.c -o bin/sqlite3.obj -c
-	clang++ src/*.cpp bin/sqlite3.obj -o bin/out.o -std=c++20
+build: build/sqlite3.obj src/*.cpp src/*.h
+	clang++ src/*.cpp build/sqlite3.obj -o build/out.o -std=c++20
 
 run: build
-	./bin/out.o
+	./build/debug/out.o
 
-build_debug: clean
-	mkdir -p bin/debug
-	clang --debug src/sqlite/sqlite3.c -o bin/debug/sqlite3.obj -c
-	clang++ --debug src/*.cpp bin/debug/sqlite3.obj -o bin/debug/out.o -std=c++20
+build_debug: build/debug/sqlite3.obj build/debug/out.o
 
 run_debug: build_debug
-	./bin/debug/out.o
+	./build/debug/out.o
 
 clean:
-	rm -rf bin
+	rm -rf build
+
+build/debug:
+	mkdir -p build/debug
+
+build/sqlite3.obj: src/sqlite/*.h src/sqlite/*.c
+	mkdir -p build
+	clang src/sqlite/*.c -o build/sqlite3.obj -c
+
+build/debug/sqlite3.obj: src/sqlite/*.h src/sqlite/*.c
+	mkdir -p build/debug
+	clang --debug src/sqlite/*.c -o build/debug/sqlite3.obj -c
+	
+build/debug/out.o: build/debug build/debug/sqlite3.obj src/*.cpp src/*.h
+	clang++ --debug src/*.cpp build/debug/sqlite3.obj -o build/debug/out.o -std=c++20
