@@ -59,18 +59,18 @@ debug: CXXFLAGS += $(DEBUG_FLAGS)
 debug: $(DEBUG_BUILD_DIR) $(DEBUG_OUT)
 
 $(DEBUG_BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp
-	$(CXX) $(CXXFLAGS) $(DEBUG_FLAGS) -c $< -o $@
+	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 $(DEBUG_BUILD_DIR)/%.o: $(SQLITE_DIR)/%.c
-	$(CC) $(CFLAGS) $(DEBUG_FLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) -c $< -o $@
 
 $(DEBUG_BUILD_DIR)/%.o: $(UTILS_DIR)/%.cpp
-	$(CXX) $(CXXFLAGS) $(DEBUG_FLAGS) -c $< -o $@
+	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 $(DEBUG_OUT): $(DEBUG_OBJ_FILES) $(DEBUG_SQLITE_OBJ_FILES) $(DEBUG_UTILS_OBJ_FILES)
 	$(CXX) $^ -o $@ $(LDFLAGS)
 
 clean:
-	rm -rf $(BUILD_DIR)
 	rm -rf $(DEBUG_BUILD_DIR)
+	rm -rf $(BUILD_DIR)
 
