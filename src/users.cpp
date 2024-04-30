@@ -158,6 +158,30 @@ Users::Users(std::string path, const std::string &username, std::string *passwor
     create_table("users", User::items, true);
 }
 
+Users::Users(Database &db, const std::string &username, std::string *password)
+{
+    this->db = db.db;
+
+    if (password != nullptr)
+    {
+        std::vector<Record> records =
+            execute("SELECT name FROM sqlite_master WHERE type='table' AND name='users'"
+            );
+        if (records.size() < 1)
+        {
+            create_table("users", User::items, true);
+            // Create the Root user with the submitted username and a random password
+            char length = (rand() % 10) + 10;
+            for (char i = 0; i < length; i++)
+            {
+                *password += (rand() % 94) + 33;
+            }
+            add_user(username, *password, username, 0, Permissions::ROOT);
+        }
+    }
+    create_table("users", User::items, true);
+}
+
 void Users::add_user(
     const std::string &username,
     const Password &password,

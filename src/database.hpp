@@ -8,6 +8,8 @@ using Record = std::vector<std::string>;
 
 class Database
 {
+    friend class Users;
+
   public:
     Database();
     Database(const char *path);

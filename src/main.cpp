@@ -37,13 +37,14 @@ int main(int argc, char *argv[])
 
     // Init users' database
     std::string *password = new std::string("");
-    Users users("./users.sqlite3", "Seyed", password);
+    Users users("./db.sqlite3", "Seyed", password);
     if (*password != "")
         std::cout << "Root User:\n\tUsername: Seyed\n\tPassword: " << *password
                   << "\n\n\n";
 
     // Products' database
-    Products products("./products.sqlite3");
+    // NOTE: Bad practice (But I don't care - it lets me use fewer number of files)
+    Products products((Products &)users);
 
     // Get the command from the parser and check what options is chosen by the user
     std::string *command = (std::string *)args.get("command");

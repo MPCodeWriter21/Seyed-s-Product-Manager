@@ -46,6 +46,7 @@ class Products : protected Database
 {
   public:
     Products(std::string path);
+    Products(Products &products);
     void add_product(
         const std::string &name,
         const double &price,

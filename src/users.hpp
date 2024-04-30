@@ -83,6 +83,11 @@ class Users : protected Database
         const std::string &username = "Seyed",
         std::string *password = nullptr
     );
+    Users(
+        Database& db,
+        const std::string &username = "Seyed",
+        std::string *password = nullptr
+    );
     void add_user(
         const std::string &username,
         const Password &password,

@@ -94,6 +94,11 @@ Products::Products(std::string path) : Database(path.c_str())
     create_table("products", Product::items, true);
 }
 
+Products::Products(Products &products) : Database(products)
+{
+    create_table("products", Product::items, true);
+}
+
 void Products::add_product(
     const std::string &name,
     const double &price,
