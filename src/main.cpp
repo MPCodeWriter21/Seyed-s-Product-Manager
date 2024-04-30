@@ -1,6 +1,6 @@
-#include "argparse.h"
-#include "product.h"
-#include "users.h"
+#include "utils/argparse.hpp"
+#include "product.hpp"
+#include "users.hpp"
 #include <iostream>
 #include <string>
 #include <vector>

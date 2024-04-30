@@ -1,7 +1,7 @@
-#include "database.h"
+#include "database.hpp"
 #include "sqlite/sqlite3.h"
-#include "users.h"
-#include "utils.h"
+#include "users.hpp"
+#include "utils/utils.hpp"
 #include <cstdlib>
 #include <iostream>
 #include <ostream>
@@ -41,8 +41,8 @@ User::User(
     Permissions permissions,
     std::function<void(User &)> on_change_callback
 )
-    : DatabaseObject(items), id(id), username(username), name(name), balance(balance),
-      permissions(permissions), on_change_callback(on_change_callback)
+    : DatabaseObject(items), on_change_callback(on_change_callback), id(id),
+      username(username), name(name), balance(balance), permissions(permissions)
 {
 }
 
@@ -76,43 +76,43 @@ const Permissions &User::get_permissions() const
     return permissions;
 }
 
-const void User::set_username(const std::string username)
+void User::set_username(const std::string username)
 {
     this->username = username;
     call_callbacks();
 }
 
-const void User::set_password(const std::string password)
+void User::set_password(const std::string password)
 {
     this->password = password;
     call_callbacks();
 }
 
-const void User::set_name(const std::string name)
+void User::set_name(const std::string name)
 {
     this->name = name;
     call_callbacks();
 }
 
-const void User::set_balance(const double balance)
+void User::set_balance(const double balance)
 {
     this->balance = balance;
     call_callbacks();
 }
 
-const void User::add_balance(const double value)
+void User::add_balance(const double value)
 {
     this->balance += value;
     call_callbacks();
 }
 
-const void User::sub_balance(const double value)
+void User::sub_balance(const double value)
 {
     this->balance -= value;
     call_callbacks();
 }
 
-const void User::set_permissions(const Permissions permissions)
+void User::set_permissions(const Permissions permissions)
 {
     this->permissions = permissions;
     call_callbacks();
@@ -124,7 +124,7 @@ inline void User::call_callbacks()
         on_change_callback(*this);
 }
 
-const void User::show_info() const
+void User::show_info() const
 {
     std::cout << "User ID     : " << get_id() << std::endl;
     std::cout << "Username    : " << get_username() << std::endl;

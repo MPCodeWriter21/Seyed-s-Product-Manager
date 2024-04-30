@@ -1,5 +1,5 @@
-#include "database.h"
-#include "product.h"
+#include "database.hpp"
+#include "product.hpp"
 #include "sqlite/sqlite3.h"
 #include <iostream>
 #include <string>
@@ -21,9 +21,8 @@ Product::Product(
     std::string description,
     std::function<void(Product &)> on_change_callback
 )
-    : DatabaseObject(items), id(id), name(name), price(price),
-      available_count(available_count), description(description),
-      on_change_callback(on_change_callback)
+    : DatabaseObject(items), on_change_callback(on_change_callback), id(id), name(name),
+      price(price), available_count(available_count), description(description)
 {
 }
 
@@ -52,22 +51,22 @@ const std::string &Product::get_description() const
     return description;
 }
 
-const void Product::set_name(const std::string name)
+void Product::set_name(const std::string name)
 {
     this->name = name;
     call_callbacks();
 }
-const void Product::set_price(const double price)
+void Product::set_price(const double price)
 {
     this->price = price;
     call_callbacks();
 }
-const void Product::set_available_count(const unsigned int available_count)
+void Product::set_available_count(const unsigned int available_count)
 {
     this->available_count = available_count;
     call_callbacks();
 }
-const void Product::set_description(const std::string description)
+void Product::set_description(const std::string description)
 {
     this->description = description;
     call_callbacks();
@@ -79,7 +78,7 @@ inline void Product::call_callbacks()
         on_change_callback(*this);
 }
 
-const void Product::show_info() const
+void Product::show_info() const
 {
     std::cout << "Product ID               : " << get_id() << std::endl;
     std::cout << "Name                     : " << get_name() << std::endl;

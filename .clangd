@@ -1,9 +1,10 @@
 # Compile flags section
 CompileFlags:
   # Add flags to the default compilation command
-  Add: ['-std=c++20']
+  Add: ['-std=c++20', '-Wall', '-Wextera']
   # Remove flags from the default compilation command
-  Remove: []
+  Remove: -W*
+  Compiler: clang++
 
 # Diagnostics section
 Diagnostics:
@@ -14,15 +15,11 @@ Diagnostics:
     Add: []
     # List of Clang-Tidy checks to remove (empty by default)
     Remove: []
-  # Options for specific Clang-Tidy checks (empty by default)
-  CheckOptions: {}
 
 # Index section (indexing for code completion etc.)
 Index:
   # Use on-disk background index (default)
   Background: true
-  # Path to the background index (default is project specific)
-  Path: ""
 
 # Compilation database section
 CompilationDatabase:

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "database.h"
+#include "database.hpp"
 #include <functional>
 #include <string>
 #include <vector>
@@ -24,11 +24,11 @@ class Product : public DatabaseObject
     const double &get_price() const;
     const unsigned int &get_available_count() const;
     const std::string &get_description() const;
-    const void set_name(const std::string name);
-    const void set_price(const double price);
-    const void set_available_count(const unsigned int available_count);
-    const void set_description(const std::string description);
-    const void show_info() const;
+    void set_name(const std::string name);
+    void set_price(const double price);
+    void set_available_count(const unsigned int available_count);
+    void set_description(const std::string description);
+    void show_info() const;
 
     std::function<void(Product &)> on_change_callback;
 

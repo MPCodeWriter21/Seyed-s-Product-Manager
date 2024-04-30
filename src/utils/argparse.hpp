@@ -5,7 +5,6 @@
 
 #include <functional>
 #include <string>
-#include <unordered_map>
 #include <vector>
 
 enum TYPE
@@ -63,9 +62,9 @@ class ArgumentParser
         const std::string help = ""
     );
     Arguments parse_args(int argc, char *argv[]);
-    const void show_help() const;
+    void show_help() const;
     const std::string get_help_text() const;
-    const void parser_error(std::string text) const;
+    void parser_error(std::string text) const;
 
   private:
     std::string name, description;

@@ -1,5 +1,5 @@
-#include "database.h"
-#include "exceptions.h"
+#include "database.hpp"
+#include "utils/exceptions.hpp"
 #include "sqlite/sqlite3.h"
 #include <vector>
 

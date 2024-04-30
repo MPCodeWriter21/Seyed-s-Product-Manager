@@ -1,27 +1,76 @@
-build: build/sqlite3.obj src/*.cpp src/*.h
-	clang++ src/*.cpp build/sqlite3.obj -o build/out.o -std=c++20
+# Compiler
+CC          = clang
+CXX         = clang++
+DEBUG_FLAGS = --debug
 
-run: build
-	./build/debug/out.o
+# Directories
+SRC_DIR         = src
+BUILD_DIR       = build
+DEBUG_BUILD_DIR = build/debug
+SQLITE_DIR      = $(SRC_DIR)/sqlite
+UTILS_DIR       = $(SRC_DIR)/utils
 
-build_debug: build/debug/sqlite3.obj build/debug/out.o
+# Source files
+SRC_FILES        = $(wildcard $(SRC_DIR)/*.cpp)
+SQLITE_SRC_FILES = $(wildcard $(SQLITE_DIR)/*.c)
+UTILS_SRC_FILES  = $(wildcard $(UTILS_DIR)/*.cpp)
 
-run_debug: build_debug
-	./build/debug/out.o
+# Object files
+OBJ_FILES        = $(patsubst $(SRC_DIR)/%.cpp,$(BUILD_DIR)/%.o,$(SRC_FILES))
+SQLITE_OBJ_FILES = $(patsubst $(SQLITE_DIR)/%.c,$(BUILD_DIR)/%.o,$(SQLITE_SRC_FILES))
+UTILS_OBJ_FILES  = $(patsubst $(UTILS_DIR)/%.cpp,$(BUILD_DIR)/%.o,$(UTILS_SRC_FILES))
+
+DEBUG_OBJ_FILES        = $(patsubst $(SRC_DIR)/%.cpp,$(DEBUG_BUILD_DIR)/%.o,$(SRC_FILES))
+DEBUG_SQLITE_OBJ_FILES = $(patsubst $(SQLITE_DIR)/%.c,$(DEBUG_BUILD_DIR)/%.o,$(SQLITE_SRC_FILES))
+DEBUG_UTILS_OBJ_FILES  = $(patsubst $(UTILS_DIR)/%.cpp,$(DEBUG_BUILD_DIR)/%.o,$(UTILS_SRC_FILES))
+
+# Executable
+OUT = seyed_app.out
+DEBUG_OUT = $(DEBUG_BUILD_DIR)/$(OUT)
+
+# Flags
+CFLAGS = -I$(SRC_DIR) -I$(SQLITE_DIR) -I$(UTILS_DIR)
+CXXFLAGS = -I$(SRC_DIR) -I$(SQLITE_DIR) -I$(UTILS_DIR) -Wall -Wextra --std=c++20
+LDFLAGS  = 
+
+.PHONY: all clean debug
+
+all: $(BUILD_DIR) $(OUT)
+
+$(BUILD_DIR):
+	mkdir -p $(BUILD_DIR)
+
+$(DEBUG_BUILD_DIR):
+	mkdir -p $(DEBUG_BUILD_DIR)
+
+$(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp
+	$(CXX) $(CXXFLAGS) -c $< -o $@
+
+$(BUILD_DIR)/%.o: $(SQLITE_DIR)/%.c
+	$(CC) $(CFLAGS) -c $< -o $@
+
+$(BUILD_DIR)/%.o: $(UTILS_DIR)/%.cpp
+	$(CXX) $(CXXFLAGS) -c $< -o $@
+
+$(OUT): $(OBJ_FILES) $(SQLITE_OBJ_FILES) $(UTILS_OBJ_FILES)
+	$(CXX) $^ -o $(BUILD_DIR)/$@ $(LDFLAGS)
+
+debug: CXXFLAGS += $(DEBUG_FLAGS)
+debug: $(DEBUG_BUILD_DIR) $(DEBUG_OUT)
+
+$(DEBUG_BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp
+	$(CXX) $(CXXFLAGS) $(DEBUG_FLAGS) -c $< -o $@
+
+$(DEBUG_BUILD_DIR)/%.o: $(SQLITE_DIR)/%.c
+	$(CC) $(CFLAGS) $(DEBUG_FLAGS) -c $< -o $@
+
+$(DEBUG_BUILD_DIR)/%.o: $(UTILS_DIR)/%.cpp
+	$(CXX) $(CXXFLAGS) $(DEBUG_FLAGS) -c $< -o $@
+
+$(DEBUG_OUT): $(DEBUG_OBJ_FILES) $(DEBUG_SQLITE_OBJ_FILES) $(DEBUG_UTILS_OBJ_FILES)
+	$(CXX) $^ -o $@ $(LDFLAGS)
 
 clean:
-	rm -rf build
+	rm -rf $(BUILD_DIR)
+	rm -rf $(DEBUG_BUILD_DIR)
 
-build/debug:
-	mkdir -p build/debug
-
-build/sqlite3.obj: src/sqlite/*.h src/sqlite/*.c
-	mkdir -p build
-	clang src/sqlite/*.c -o build/sqlite3.obj -c
-
-build/debug/sqlite3.obj: src/sqlite/*.h src/sqlite/*.c
-	mkdir -p build/debug
-	clang --debug src/sqlite/*.c -o build/debug/sqlite3.obj -c
-	
-build/debug/out.o: build/debug build/debug/sqlite3.obj src/*.cpp src/*.h
-	clang++ --debug src/*.cpp build/debug/sqlite3.obj -o build/debug/out.o -std=c++20

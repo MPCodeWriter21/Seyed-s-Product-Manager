@@ -1,6 +1,6 @@
 #pragma once
 
-#include "database.h"
+#include "database.hpp"
 #include <functional>
 #include <string>
 #include <vector>
@@ -51,14 +51,14 @@ class User : public DatabaseObject
     const std::string &get_name() const;
     const double &get_balance() const;
     const Permissions &get_permissions() const;
-    const void set_username(const std::string username);
-    const void set_password(const std::string username);
-    const void set_name(const std::string name);
-    const void set_balance(const double price);
-    const void add_balance(const double price);
-    const void sub_balance(const double price);
-    const void set_permissions(const Permissions permissions);
-    const void show_info() const;
+    void set_username(const std::string username);
+    void set_password(const std::string username);
+    void set_name(const std::string name);
+    void set_balance(const double price);
+    void add_balance(const double price);
+    void sub_balance(const double price);
+    void set_permissions(const Permissions permissions);
+    void show_info() const;
 
     std::function<void(User &)> on_change_callback;
 
