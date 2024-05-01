@@ -29,5 +29,5 @@ CheckOptions:
   llvm-qualified-auto.AddConstToQualified: 'true'
   llvm-else-after-return.WarnOnConditionVariables: 'true'
   cert-oop54-cpp.WarnOnlyIfThisHasSuspiciousField: 'false'
-SystemHeaders:   false
+SystemHeaders:   true
 ...

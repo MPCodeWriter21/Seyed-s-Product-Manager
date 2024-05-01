@@ -5,5 +5,6 @@
 void error(std::string text, bool exit = true)
 {
     std::cerr << text << std::endl;
-    std::exit(1);
+    if (exit)
+        std::exit(1);
 }

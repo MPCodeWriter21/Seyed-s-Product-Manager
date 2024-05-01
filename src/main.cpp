@@ -1,6 +1,6 @@
+#include "database/product.hpp"
+#include "database/users.hpp"
 #include "utils/argparse.hpp"
-#include "product.hpp"
-#include "users.hpp"
 #include <iostream>
 #include <string>
 #include <vector>

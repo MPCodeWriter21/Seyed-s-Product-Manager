@@ -1,9 +1,9 @@
 # Compile flags section
 CompileFlags:
   # Add flags to the default compilation command
-  Add: ['-std=c++20', '-Wall', '-Wextera']
+  Add:
   # Remove flags from the default compilation command
-  Remove: -W*
+  Remove:
   Compiler: clang++
 
 # Diagnostics section

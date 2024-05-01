@@ -264,7 +264,8 @@ const std::vector<User> &Users::list_users()
 const std::vector<User> &Users::get_users_by_permissions(const Permissions &permissions)
 {
     std::vector<User> *users = new std::vector<User>();
-    std::vector<Record> records = execute("SELECT * FROM users WHERE permissions=0");
+    std::vector<Record> records =
+        execute("SELECT * FROM users WHERE permissions=" + std::to_string(permissions));
     for (unsigned int i = 0; i < records.size(); i++)
     {
         const Record &user_info = records[i];

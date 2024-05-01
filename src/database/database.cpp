@@ -1,6 +1,7 @@
 #include "database.hpp"
 #include "utils/exceptions.hpp"
 #include "sqlite/sqlite3.h"
+#include "utils/warnings.hpp"
 #include <vector>
 
 Database::Database()
@@ -32,7 +33,10 @@ void Database::close_db()
         sqlite3_close(db);
 }
 
+DISABLE_WARNING_PUSH
+DISABLE_WARNING_UNREFERENCED_FORMAL_PARAMETER
 int _select_callback(void *data, int num_fields, char **fields, char **col_names)
+DISABLE_WARNING_POP
 {
     std::vector<Record> *records = static_cast<std::vector<Record> *>(data);
     try
