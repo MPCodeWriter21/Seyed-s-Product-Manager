@@ -1,17 +1,15 @@
-// Dear ImGui: standalone example application for DirectX 9
+// Dear ImGui: shop application for Seyed
 
-// Learn about Dear ImGui:
-// - FAQ                  https://dearimgui.com/faq
-// - Getting Started      https://dearimgui.com/getting-started
-// - Documentation        https://dearimgui.com/docs (same as your local docs/ folder).
-// - Introduction, links and more at the top of imgui.cpp
+//
 
-#include "imgui.h"
-#include "imgui_impl_dx9.h"
-#include "imgui_impl_win32.h"
+#include "vendor/imgui/imgui.h"
+#include "vendor/imgui/backends/imgui_impl_dx9.h"
+#include "vendor/imgui/backends/imgui_impl_win32.h"
 #include <d3d9.h>
 #include <tchar.h>
-
+#include <iostream>
+#include <string>
+//
 // Data
 static LPDIRECT3D9              g_pD3D = nullptr;
 static LPDIRECT3DDEVICE9        g_pd3dDevice = nullptr;
@@ -27,6 +25,7 @@ LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 // Main code
 int main(int, char**)
 {
+
     // Create application window
     //ImGui_ImplWin32_EnableDpiAwareness();
     WNDCLASSEXW wc = { sizeof(wc), CS_CLASSDC, WndProc, 0L, 0L, GetModuleHandle(nullptr), nullptr, nullptr, nullptr, nullptr, L"ImGui Example", nullptr };
@@ -61,28 +60,77 @@ int main(int, char**)
     ImGui_ImplDX9_Init(g_pd3dDevice);
 
     // Load Fonts
-    // - If no fonts are loaded, dear imgui will use the default font. You can also load multiple fonts and use ImGui::PushFont()/PopFont() to select them.
-    // - AddFontFromFileTTF() will return the ImFont* so you can store it if you need to select the font among multiple.
-    // - If the file cannot be loaded, the function will return a nullptr. Please handle those errors in your application (e.g. use an assertion, or display an error and quit).
-    // - The fonts will be rasterized at a given size (w/ oversampling) and stored into a texture when calling ImFontAtlas::Build()/GetTexDataAsXXXX(), which ImGui_ImplXXXX_NewFrame below will call.
-    // - Use '#define IMGUI_ENABLE_FREETYPE' in your imconfig file to use Freetype for higher quality font rendering.
-    // - Read 'docs/FONTS.md' for more instructions and details.
-    // - Remember that in C/C++ if you want to include a backslash \ in a string literal you need to write a double backslash \\ !
-    //io.Fonts->AddFontDefault();
-    //io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\segoeui.ttf", 18.0f);
-    //io.Fonts->AddFontFromFileTTF("../../misc/fonts/DroidSans.ttf", 16.0f);
-    //io.Fonts->AddFontFromFileTTF("../../misc/fonts/Roboto-Medium.ttf", 16.0f);
-    //io.Fonts->AddFontFromFileTTF("../../misc/fonts/Cousine-Regular.ttf", 15.0f);
-    //ImFont* font = io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\ArialUni.ttf", 18.0f, nullptr, io.Fonts->GetGlyphRangesJapanese());
-    //IM_ASSERT(font != nullptr);
-
+    io.Fonts->AddFontDefault();
+    ImFont* mainfont = io.Fonts->AddFontFromFileTTF("vendor\\imgui\\misc\\fonts\\Lalezar-Regular.ttf",30);
+    IM_ASSERT(mainfont != NULL);
     // Our state
-    bool show_demo_window = true;
-    bool show_another_window = false;
-    ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+    //ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+    ImVec4 clear_color = ImVec4(40, 40, 40, 50);
+    //ImVec4 clear_color = ImVec4(255, 255, 255, 200);
 
     // Main loop
     bool done = false;
+    bool dokme_sabt_mahsool = false;
+    int gheimat = 0;
+    bool dokme_Sabt_sefaresh = false;
+    bool dokme_Sefareshat = false;
+    bool dokme_Gardesh_mali = false;
+    bool dokme_Mahsoolat = false;
+    bool dokme_bastan = true;
+
+    bool logged = false;
+    std::string password = "1111";
+    static char passput[128];
+    bool wrong_pass = false;
+    bool login_pass = false;
+
+    ImGuiStyle& style = ImGui::GetStyle();
+
+    // Blonge Style
+    style.Alpha = 1.0f;
+    style.FrameRounding = 7.0f;
+    style.Colors[ImGuiCol_Text] = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
+    style.Colors[ImGuiCol_TextDisabled] = ImVec4(0.60f, 0.60f, 0.60f, 1.00f);
+    //style.Colors[ImGuiCol_WindowBg] = ImVec4(0.13f, 0.22f, 0.35f, 0.70f);
+    style.Colors[ImGuiCol_WindowBg] = ImVec4(0.16f, 0.16f, 0.16f, 1.00f);
+    style.Colors[ImGuiCol_PopupBg] = ImVec4(.00f, 1.00f, 1.00f, 0.94f);
+    //style.Colors[ImGuiCol_Border] = ImVec4(0.00f, 0.00f, 0.00f, 0.20f);
+    style.Colors[ImGuiCol_Border] = ImVec4(1.00f, 1.00f, 1.00f, 0.10f);
+    style.Colors[ImGuiCol_BorderShadow] = ImVec4(1.00f, 1.00f, 1.00f, 0.10f);
+    style.Colors[ImGuiCol_FrameBg] = ImVec4(0.05f, 0.00f, 0.20f, 0.94f);
+    style.Colors[ImGuiCol_FrameBgHovered] = ImVec4(0.26f, 0.59f, 0.98f, 0.40f);
+    style.Colors[ImGuiCol_FrameBgActive] = ImVec4(0.26f, 0.59f, 0.98f, 0.67f);
+    style.Colors[ImGuiCol_TitleBg] = ImVec4(1.00f, 0.45f, 0.12f, 1.00f);
+    style.Colors[ImGuiCol_TitleBgCollapsed] = ImVec4(1.00f, 0.45f, 0.12f, 0.70f);
+    style.Colors[ImGuiCol_TitleBgActive] = ImVec4(0.90f, 0.35f, 0.02f, 1.00f);
+    style.Colors[ImGuiCol_MenuBarBg] = ImVec4(0.86f, 0.86f, 0.86f, 1.00f);
+    style.Colors[ImGuiCol_ScrollbarBg] = ImVec4(0.98f, 0.98f, 0.98f, 0.53f);
+    style.Colors[ImGuiCol_ScrollbarGrab] = ImVec4(0.69f, 0.69f, 0.69f, 1.00f);
+    style.Colors[ImGuiCol_ScrollbarGrabHovered] = ImVec4(0.59f, 0.59f, 0.59f, 1.00f);
+    style.Colors[ImGuiCol_ScrollbarGrabActive] = ImVec4(0.49f, 0.49f, 0.49f, 1.00f);
+    style.Colors[ImGuiCol_CheckMark] = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
+    style.Colors[ImGuiCol_SliderGrab] = ImVec4(0.24f, 0.52f, 0.88f, 1.00f);
+    style.Colors[ImGuiCol_SliderGrabActive] = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
+    style.Colors[ImGuiCol_ButtonActive] = ImVec4(0.26f, 0.59f, 0.98f, 0.40f);
+    style.Colors[ImGuiCol_ButtonHovered] = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
+    style.Colors[ImGuiCol_Button] = ImVec4(0.15f, 0.02f, 0.68f, 1.00f);
+    style.Colors[ImGuiCol_Header] = ImVec4(0.26f, 0.59f, 0.98f, 0.31f);
+    style.Colors[ImGuiCol_HeaderHovered] = ImVec4(0.26f, 0.59f, 0.98f, 0.80f);
+    style.Colors[ImGuiCol_HeaderActive] = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
+    style.Colors[ImGuiCol_ResizeGrip] = ImVec4(1.00f, 1.00f, 1.00f, 0.50f);
+    style.Colors[ImGuiCol_ResizeGripHovered] = ImVec4(0.26f, 0.59f, 0.98f, 0.67f);
+    style.Colors[ImGuiCol_ResizeGripActive] = ImVec4(0.26f, 0.59f, 0.98f, 0.95f);
+    style.Colors[ImGuiCol_PlotLines] = ImVec4(0.39f, 0.39f, 0.39f, 1.00f);
+    style.Colors[ImGuiCol_PlotLinesHovered] = ImVec4(1.00f, 0.43f, 0.35f, 1.00f);
+    style.Colors[ImGuiCol_PlotHistogram] = ImVec4(0.90f, 0.70f, 0.00f, 1.00f);
+    style.Colors[ImGuiCol_PlotHistogramHovered] = ImVec4(1.00f, 0.60f, 0.00f, 1.00f);
+    style.Colors[ImGuiCol_TextSelectedBg] = ImVec4(0.26f, 0.59f, 0.98f, 0.35f);
+    //style.Colors[ImGuiCol_] = ImVec4(0.26f, 0.59f, 0.98f, 0.35f);
+    style.WindowRounding = 10;
+    style.WindowBorderSize = 2;
+    //style.rounding
+    //style.Colors[ImGuiCol_Button] = ImVec4(28, 41, 172, 50);
+    //style.Colors[ImGuiCol_Border] = ImVec4(255, 255, 255, 0);
     while (!done)
     {
         // Poll and handle messages (inputs, window resize, etc.)
@@ -112,52 +160,128 @@ int main(int, char**)
         ImGui_ImplWin32_NewFrame();
         ImGui::NewFrame();
 
-        // 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear ImGui!).
-        if (show_demo_window)
-            ImGui::ShowDemoWindow(&show_demo_window);
+        //ImGui :: SetWindowPos  ( ImGui :: GetMainViewport () -> Pos ) ;
+        //ImGui :: SetWindowSize ( ImGui :: GetMainViewport () -> Size ) ;
 
-        // 2. Show a simple window that we create ourselves. We use a Begin/End pair to create a named window.
+
+
+        // panjare man
+        ImGui::PushFont(mainfont);
+        ImGui::SetNextWindowPos(ImVec2(600, 250));
+        ImGui::SetNextWindowSize(ImVec2(200, 200));
+        if (login_pass == false)
         {
-            static float f = 0.0f;
-            static int counter = 0;
+            if (ImGui::Begin("LOGIN", NULL, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove))
+            {
 
-            ImGui::Begin("Safhe amaliat");                          // Create a window called "Hello, world!" and append into it.
-
-            ImGui::Text("amaliat morede nazar ra entekhab konid :");               // Display some text (you can use a format strings too)
-            ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
-
-            ImGui::Checkbox("Sabt mahsool Window", &show_demo_window);
-            ImGui::Checkbox("Sabt sefaresh Window", &show_demo_window);
-            ImGui::Checkbox("Sefaresat Window", &show_demo_window);
-            ImGui::Checkbox("Gardesh mali Window", &show_demo_window);
-            ImGui::Checkbox("Mahsoolat Window", &show_demo_window);
-            ImGui::Checkbox("Mine Idea Window", &show_demo_window);
-
-
-            ImGui::Checkbox("Another Window", &show_another_window);
-
-            ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
-            ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
-
-            if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
-                counter++;
-            ImGui::SameLine();
-            ImGui::Text("counter = %d", counter);
-
-            ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
-            ImGui::End();
+                ImGui::Text("Enter Your Password");
+                ImGui::InputText("##", passput, sizeof(passput), ImGuiInputTextFlags_Password | ImGuiInputTextFlags_EnterReturnsTrue);
+                if (wrong_pass == true)
+                {
+                    ImGui::Text("Wrong Password");
+                }
+                if (ImGui::Button("login"))
+                {
+                    if (passput == password)
+                    {
+                        logged = true;
+                    }
+                    else
+                    {
+                        wrong_pass = true;
+                    }
+                }
+            }ImGui::End();
         }
-
-        // 3. Show another simple window.
-        if (show_another_window)
+        ImGui::SetCursorPos(ImVec2(0, 0));
+        ImGui::SetNextWindowSize(ImVec2(600, 400));
+        ImGui::SetNextWindowPos(ImVec2(400, 100));
+        if (logged)
         {
-            ImGui::Begin("Another Window", &show_another_window);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
-            ImGui::Text("Hello from another window!");
-            if (ImGui::Button("Close Me"))
-                show_another_window = false;
-            ImGui::End();
-        }
+            login_pass = true;
+            if (ImGui::Begin("main panjare", NULL, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove))
+            {
+                //ImGui::SetWindowFontScale(2.0f);
+                ImGui::SetCursorPos(ImVec2(280, 40));
+                ImGui::Text("SALAM");
+                ImGui::SetCursorPos(ImVec2(160, 60));
+                ImGui::Text("amaliat morede nazar ra entekhab konid");
 
+                ImGui::SetCursorPos(ImVec2(20, 100));
+                if (ImGui::Button("sabt mahsool", ImVec2(250, 60)))
+                {
+                    dokme_sabt_mahsool = true;
+                }
+
+                ImGui::SetCursorPos(ImVec2(320, 100));
+                if (ImGui::Button("Sabt sefaresh", ImVec2(250, 60)))
+                {
+                    dokme_Sabt_sefaresh = true;
+                }
+
+                ImGui::SetCursorPos(ImVec2(20, 165));
+                if (ImGui::Button("Sefareshat", ImVec2(250, 60)))
+                {
+                    dokme_Sefareshat = true;
+                }
+
+                ImGui::SetCursorPos(ImVec2(320, 165));
+                if (ImGui::Button("Gardesh mali", ImVec2(250, 60)))
+                {
+                    dokme_Gardesh_mali = true;
+                }
+
+                ImGui::SetCursorPos(ImVec2(150, 230));
+                if (ImGui::Button("Mahsoolat", ImVec2(300, 60)))
+                {
+                    dokme_Mahsoolat = true;
+                }
+
+                ImGui::End();
+            }
+        }
+        ImGui::SetNextWindowSize(ImVec2(200, 200));
+        if (dokme_sabt_mahsool)
+        {
+            if (ImGui::Begin("sabt mahsool panjare", &dokme_sabt_mahsool, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize ) )
+            {
+                ImGui::SliderInt("Gheimat", &gheimat, 0, 100000);
+
+            }ImGui::End();
+        }
+        ImGui::SetNextWindowSize(ImVec2(300, 400));
+        if (dokme_Sabt_sefaresh)
+        {
+            if (ImGui::Begin("Sabt sefaresh panjare", &dokme_Sabt_sefaresh, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize))
+            {
+
+            }ImGui::End();
+        }
+        ImGui::SetNextWindowSize(ImVec2(400, 400));
+        if (dokme_Sefareshat)
+        {
+            if (ImGui::Begin("Sefareshat panjare", &dokme_Sefareshat, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize))
+            {
+
+            }ImGui::End();
+        }
+        ImGui::SetNextWindowSize(ImVec2(100, 500));
+        if (dokme_Gardesh_mali)
+        {
+            if (ImGui::Begin("Gardesh mali panjare", &dokme_Gardesh_mali, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize))
+            {
+
+            }ImGui::End();
+        }
+        ImGui::SetNextWindowSize(ImVec2(600, 800));
+        if (dokme_Mahsoolat)
+        {
+            if (ImGui::Begin("Mahsoolat panjare", &dokme_Mahsoolat, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize))
+            {
+
+            }ImGui::End();
+        }
+        ImGui::PopFont();
         // Rendering
         ImGui::EndFrame();
         g_pd3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE);
