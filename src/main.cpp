@@ -1,5 +1,6 @@
+#include "database/order.hpp"
 #include "database/product.hpp"
-#include "database/users.hpp"
+#include "database/user.hpp"
 #include "utils/argparse.hpp"
 #include <iostream>
 #include <string>
@@ -11,7 +12,7 @@ int main(int argc, char *argv[])
     parser.add_argument(
         new std::string[]{}, 0, TYPE::STRING, "command", nullptr,
         "Commands: add-product, get-product, list-products, list-sold-out, "
-        "edit-product, add-user"
+        "edit-product, add-user, new-order, list-orders"
     );
     parser.add_argument(
         new std::string[]{"-i", "--product-id"}, 2, TYPE::INT, "product-id", nullptr,
@@ -45,6 +46,7 @@ int main(int argc, char *argv[])
     // Products' database
     // NOTE: Bad practice (But I don't care - it lets me use fewer number of files)
     Products products((Products &)users);
+    Orders orders((Orders &)users);
 
     // Get the command from the parser and check what options is chosen by the user
     std::string *command = (std::string *)args.get("command");
@@ -179,6 +181,40 @@ int main(int argc, char *argv[])
     else if (*command == "add-user")
     {
         // TODO: ...
+        std::cout << "Not implemented yet" << std::endl;
+    }
+    else if (*command == "new-order")
+    {
+        std::vector<ProductOrder> product_orders;
+        unsigned int product_id, count;
+        while (true)
+        {
+            std::cout << "Enter the product id (or 0 to stop): ";
+            std::cin >> product_id;
+            if (product_id == 0)
+                break;
+            Product *product = products.get_product(product_id);
+            if (product == nullptr)
+            {
+                std::cout << "Product with id " << product_id << " does not exist!\n";
+                continue;
+            }
+            std::cout << "Enter the number of products: ";
+            std::cin >> count;
+            if (count < 1)
+            {
+                std::cout << "No protuct was added to the order!\n";
+                continue;
+            }
+            product_orders.push_back(ProductOrder(*product, count));
+        }
+        if (product_orders.size() < 1)
+        {
+            std::cout << "No product means no order!\n";
+            return 0;
+        }
+        std::cout << "Creating a new order..." << std::endl;
+        orders.add_order(product_orders);
     }
     else
         parser.parser_error(

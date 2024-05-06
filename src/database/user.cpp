@@ -1,6 +1,6 @@
 #include "database.hpp"
 #include "sqlite/sqlite3.h"
-#include "users.hpp"
+#include "user.hpp"
 #include "utils/utils.hpp"
 #include <cstdlib>
 #include <iostream>
