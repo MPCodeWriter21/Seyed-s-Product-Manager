@@ -2,6 +2,8 @@
 #include "database/product.hpp"
 #include "database/user.hpp"
 #include "utils/argparse.hpp"
+#include "utils/utils.hpp"
+#include <iomanip>
 #include <iostream>
 #include <string>
 #include <vector>
@@ -12,7 +14,7 @@ int main(int argc, char *argv[])
     parser.add_argument(
         new std::string[]{}, 0, TYPE::STRING, "command", nullptr,
         "Commands: add-product, get-product, list-products, list-sold-out, "
-        "edit-product, add-user, new-order, list-orders"
+        "edit-product, add-user, new-order, list-orders, get-order, pay-order"
     );
     parser.add_argument(
         new std::string[]{"-i", "--product-id"}, 2, TYPE::INT, "product-id", nullptr,
@@ -34,7 +36,13 @@ int main(int argc, char *argv[])
         new std::string[]{"-d", "--product-description"}, 2, TYPE::STRING,
         "description", nullptr, "Product Description"
     );
+    parser.add_argument(
+        new std::string[]{"-I", "--order-id"}, 2, TYPE::INT, "order-id", nullptr,
+        "Order ID"
+    );
     auto args = parser.parse_args(argc, argv);
+
+    enable_comma_locale();
 
     // Init users' database
     std::string *password = new std::string("");
@@ -215,6 +223,53 @@ int main(int argc, char *argv[])
         }
         std::cout << "Creating a new order..." << std::endl;
         orders.add_order(product_orders);
+    }
+    else if (*command == "list-orders")
+    {
+        const std::vector<Order> &list_of_orders = orders.list_orders(products);
+        for (unsigned int i = 0; i < list_of_orders.size(); i++)
+        {
+            list_of_orders[i].show_info();
+            std::cout << std::endl;
+        }
+    }
+    else if (*command == "get-order")
+    {
+        int *id = (int *)args.get("order-id");
+        // Checks to see if valid arguments were supplied to the program
+        if (id == nullptr)
+        {
+            parser.show_help();
+            parser.parser_error("You must specify the order's ID.");
+        }
+        std::cout << "Getting order with id `" << *id << "`..." << std::endl;
+        const Order *order = orders.get_order(*id, products);
+        if (order == nullptr)
+        {
+            std::cerr << "Could not find an order with id=" + std::to_string(*id)
+                      << std::endl;
+            return 0;
+        }
+        order->show_info();
+        std::vector<ProductOrder> product_orders = order->get_product_orders();
+        for (unsigned int i = 0; i < order->get_count(); i++)
+        {
+            std::cout << "\tProduct order " << i + 1 << ":\n";
+            std::cout << "\tProduct ID     : " << product_orders[i].product.get_id()
+                      << std::endl;
+            std::cout << "\tProduct Name   : " << product_orders[i].product.get_name()
+                      << std::endl;
+            std::cout << "\tPrice of one   : " << std::setprecision(2) << std::fixed
+                      << product_orders[i].product.get_price() << std::endl;
+            std::cout << "\tCount          : " << product_orders[i].count << std::endl;
+            std::cout << "\tTotal amount   : " << std::setprecision(2) << std::fixed
+                      << product_orders[i].count * product_orders[i].product.get_price()
+                      << std::endl;
+            std::cout << std::endl;
+        }
+    }
+    else if (*command == "pay-order") {
+        // TODO: ...
     }
     else
         parser.parser_error(

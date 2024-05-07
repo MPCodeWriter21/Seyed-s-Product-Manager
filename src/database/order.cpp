@@ -3,6 +3,7 @@
 #include "order.hpp"
 #include "sqlite/sqlite3.h"
 #include "utils/exceptions.hpp"
+#include <iomanip>
 #include <iostream>
 #include <iterator>
 #include <string>
@@ -24,7 +25,7 @@ ProductOrder ProductOrder::from_string(const std::string &data, Products &produc
 {
     unsigned long long index;
     unsigned int product_id, count;
-    if ((index = data.find(",")) != std::string::npos)
+    if ((index = data.find(",")) == std::string::npos)
         error("Invalid content for ProductOrder: `" + data + "`");
     product_id = std::stoi(data.substr(0, index));
     count = std::stoi(data.substr(index + 1, data.size()));
@@ -93,7 +94,8 @@ inline void Order::call_callbacks()
 void Order::show_info() const
 {
     std::cout << "Order ID      : " << get_id() << std::endl;
-    std::cout << "Total price   : " << get_total() << std::endl;
+    std::cout << "Total price   : " << std::setprecision(2) << std::fixed << get_total()
+              << std::endl;
     std::cout << "No. of Orders : " << get_count() << std::endl;
 }
 
@@ -152,6 +154,7 @@ std::vector<ProductOrder> Order::from_string(
         if (c == ',')
         {
             product_orders.push_back(ProductOrder::from_string(part, products));
+            part = "";
             continue;
         }
         part += c;

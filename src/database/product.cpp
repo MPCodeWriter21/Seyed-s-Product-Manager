@@ -1,6 +1,7 @@
 #include "database.hpp"
 #include "product.hpp"
 #include "sqlite/sqlite3.h"
+#include <iomanip>
 #include <iostream>
 #include <string>
 #include <vector>
@@ -82,7 +83,8 @@ void Product::show_info() const
 {
     std::cout << "Product ID               : " << get_id() << std::endl;
     std::cout << "Name                     : " << get_name() << std::endl;
-    std::cout << "Price                    : " << get_price() << std::endl;
+    std::cout << "Price                    : " << std::setprecision(2) << std::fixed
+              << get_price() << std::endl;
     std::cout << "No. of Available Products: " << get_available_count() << std::endl;
     std::cout << "Product Descriptions     : " << get_description() << std::endl;
 }
