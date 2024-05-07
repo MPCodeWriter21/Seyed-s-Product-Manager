@@ -3,7 +3,10 @@
 #include <iomanip>
 #include <string>
 
-bool replace(std::string &str, const std::string &from, const std::string &to);
+void replace(std::string &str, const std::string &from, const std::string &to);
+
+std::string escape_string(const std::string &text);
+std::string unescape_string(const std::string &escaped_text);
 
 class comma_numpunct : public std::numpunct<char>
 {

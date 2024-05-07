@@ -16,6 +16,7 @@ class Database
     int open_db(const char *path);
     void close_db();
     std::vector<Record> execute(const std::string &command);
+    std::vector<Record> execute(const std::string &command, const std::string values[]);
     int create_table(
         const std::string &table_name, const std::string &content, bool exists_ok = true
     );
