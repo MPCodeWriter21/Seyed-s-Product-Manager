@@ -115,21 +115,47 @@ not to XD)
   provide some description for the product as well.
 
   Note: You can not set a custom `id` for the product, it will be generated automatically.
+```bash
+build/seyed_app.out add-product --product-name "My Product" --price 2121 --available-count 21 --product-description "In case you couldn't tell, I really like 21 8D"
+```
 + `get-product`: Use this command to get info about a specific product by using its
   `id` (_Hopefully more ways will be added later_).
+```bash
+build/seyed_app.out get-product --product-id 8
+```
 + `list-products`: I think the command is self-explanatory but in case you did not
   understand, it prints a list of products to the console.
+```bash
+build/seyed_app.out list-products
+```
 + `list-sold-out`: It lists all sold out products.
+```bash
+build/seyed_app.out list-sold-out
+```
 + `edit-product`: Use this command to edit a product's info.
+```bash
+# Rename the product with id=8 and set its name to `Product8` and its price to `9908`
+build/seyed_app.out edit-product -i 8 -n Product8 -p 9907
+```
 
 ### Order stuff
 
 + `new-order`: Use this command to create a new order. You won't have to supply any
   command-line arguments, the program will ask you about the order after you ran the
   command.
+```bash
+build/seyed_app.out new-order
+```
 + `list-orders`: List all orders.
+```bash
+build/seyed_app.out list-orders
+```
 + `get-order`: Shows all the information about an order, you must specify the order's
   `id` using `-I` flag.
+```bash
+# Get the information about the order with id=3
+build/seyed_app.out get-order -I 3
+```
   
 Contributions
 -------------
