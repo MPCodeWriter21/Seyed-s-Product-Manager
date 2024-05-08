@@ -110,7 +110,7 @@ Arguments ArgumentParser::parse_args(int argc, char *argv[])
         if (flag_map.contains(argv[i]))
         {
             const _Argument *arg = flag_map[argv[i]];
-            if (arg->destination_name != "" && arg->type != TYPE::BOOL)
+            if (arg->destination_name != "" && arg->type != TYPE::BOOLEAN_ARGUMENT)
             {
                 if (i + 1 >= argc)
                     parser_error(
@@ -121,12 +121,12 @@ Arguments ArgumentParser::parse_args(int argc, char *argv[])
                 void *value;
                 switch (arg->type)
                 {
-                    case TYPE::INT: {
+                    case TYPE::INTEGER: {
                         int *x = new int(std::stoi(input_value));
                         value = (void *)x;
                         break;
                     }
-                    case TYPE::DOUBLE: {
+                    case TYPE::DOUBLE_NUMBER: {
                         double *y = new double(std::stod(input_value));
                         value = (void *)y;
                         break;
@@ -139,7 +139,7 @@ Arguments ArgumentParser::parse_args(int argc, char *argv[])
 
                 output_arguments.add_argument(arg->destination_name, value, arg->type);
             }
-            else if (arg->destination_name != "" && arg->type == TYPE::BOOL)
+            else if (arg->destination_name != "" && arg->type == TYPE::BOOLEAN_ARGUMENT)
             {
                 bool *x = new bool(true);
                 output_arguments.add_argument(arg->destination_name, x, arg->type);
@@ -156,12 +156,12 @@ Arguments ArgumentParser::parse_args(int argc, char *argv[])
                 void *value;
                 switch (arg->type)
                 {
-                    case TYPE::INT: {
+                    case TYPE::INTEGER: {
                         int *x = new int(std::stoi(input_value));
                         value = (void *)x;
                         break;
                     }
-                    case TYPE::DOUBLE: {
+                    case TYPE::DOUBLE_NUMBER: {
                         double *y = new double(std::stod(input_value));
                         value = (void *)y;
                         break;
