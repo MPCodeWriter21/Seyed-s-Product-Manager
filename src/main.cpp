@@ -45,6 +45,8 @@ int main(int argc, char *argv[])
     enable_comma_locale();
 
     // Init users' database
+    // TODO: Make it possible for Seyed to use a custom password instead of the random
+    // one that the app generates
     std::string *password = new std::string("");
     Users users("./db.sqlite3", "Seyed", password);
     if (*password != "")
@@ -268,7 +270,8 @@ int main(int argc, char *argv[])
             std::cout << std::endl;
         }
     }
-    else if (*command == "pay-order") {
+    else if (*command == "pay-order")
+    {
         // TODO: ...
     }
     else
