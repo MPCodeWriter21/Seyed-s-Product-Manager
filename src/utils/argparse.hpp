@@ -46,6 +46,7 @@ struct _Argument
     std::string help = "";
 };
 
+
 class ArgumentParser
 {
   public:
@@ -64,7 +65,8 @@ class ArgumentParser
     Arguments parse_args(int argc, char *argv[]);
     void show_help() const;
     const std::string get_help_text() const;
-    void parser_error(std::string text) const;
+    void parser_error(const std::string &text) const;
+    ArgumentParser &add_subparser(const std::string &name);
 
   private:
     std::string name, description;

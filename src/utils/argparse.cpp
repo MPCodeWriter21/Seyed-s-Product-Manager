@@ -261,7 +261,12 @@ const std::string ArgumentParser::get_help_text() const
     return help_text + "\n";
 }
 
-void ArgumentParser::parser_error(std::string text) const
+void ArgumentParser::parser_error(const std::string &text) const
 {
     error("Error: " + this->name + ": " + text);
+}
+
+ArgumentParser &ArgumentParser::add_subparser(const std::string &name)
+{
+    // TODO: Implement this
 }
