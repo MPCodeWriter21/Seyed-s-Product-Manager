@@ -86,7 +86,8 @@ void Product::show_info() const
     std::cout << "Price                    : " << std::setprecision(2) << std::fixed
               << get_price() << std::endl;
     std::cout << "No. of Available Products: " << get_available_count() << std::endl;
-    std::cout << "Product Descriptions     : " << get_description() << std::endl;
+    if (get_description() != "")
+        std::cout << "Product Descriptions     : " << get_description() << std::endl;
 }
 
 // Products
