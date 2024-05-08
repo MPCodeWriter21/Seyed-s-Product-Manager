@@ -138,6 +138,7 @@ Users::Users(std::string path, const std::string &username, std::string *passwor
 {
     if (password != nullptr)
     {
+        srand(time(0));
         std::vector<Record> records =
             execute("SELECT name FROM sqlite_master WHERE type='table' AND name='users'"
             );
@@ -162,6 +163,7 @@ Users::Users(Database &db, const std::string &username, std::string *password)
 
     if (password != nullptr)
     {
+        srand(time(0));
         std::vector<Record> records =
             execute("SELECT name FROM sqlite_master WHERE type='table' AND name='users'"
             );
