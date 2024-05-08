@@ -46,7 +46,6 @@ struct _Argument
     std::string help = "";
 };
 
-
 class ArgumentParser
 {
   public:
@@ -62,14 +61,24 @@ class ArgumentParser
         const std::function<void()> &callback = nullptr,
         const std::string help = ""
     );
+    // TODO: Make it so that extra arguments would raise an error saying the arguments
+    // are not recognized
     Arguments parse_args(int argc, char *argv[]);
     void show_help() const;
     const std::string get_help_text() const;
     void parser_error(const std::string &text) const;
-    ArgumentParser &add_subparser(const std::string &name);
+    // TODO: Implement a logic that actually uses the subparsers
+    ArgumentParser &add_subparser(
+        const std::string &name, const std::string &description
+    );
+
+    // Whether it's required to use at least one subparser(If at least one is available)
+    // If false, the user can pass arguments without using any subparser
+    bool subparsers_required = true;
 
   private:
     std::string name, description;
     std::vector<_Argument> arguments;
     std::string filename;
+    std::vector<ArgumentParser> subparsers;
 };

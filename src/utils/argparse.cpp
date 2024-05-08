@@ -266,7 +266,10 @@ void ArgumentParser::parser_error(const std::string &text) const
     error("Error: " + this->name + ": " + text);
 }
 
-ArgumentParser &ArgumentParser::add_subparser(const std::string &name)
+ArgumentParser &ArgumentParser::add_subparser(
+    const std::string &name, const std::string &description
+)
 {
-    // TODO: Implement this
+    subparsers.push_back(ArgumentParser(name, description));
+    return subparsers[subparsers.size() - 1];
 }
