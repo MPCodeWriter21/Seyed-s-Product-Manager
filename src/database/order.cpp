@@ -3,6 +3,7 @@
 #include "order.hpp"
 #include "sqlite/sqlite3.h"
 #include "utils/exceptions.hpp"
+#include <filesystem>
 #include <iomanip>
 #include <iostream>
 #include <iterator>
@@ -35,15 +36,17 @@ ProductOrder ProductOrder::from_string(const std::string &data, Products &produc
 // Order
 
 std::string Order::items = "id INTEGER PRIMARY KEY AUTOINCREMENT, "
-                           "product_orders TEXT NOT NULL";
+                           "product_orders TEXT NOT NULL, "
+                           "is_paid INTEGER DEFAULT 0";
 
 Order::Order(
     unsigned int id,
     const std::vector<ProductOrder> &product_orders,
+    const bool &is_paid,
     const std::function<void(Order &)> &on_change_callback
 )
     : DatabaseObject(items), on_change_callback(on_change_callback), id(id),
-      product_orders(product_orders)
+      product_orders(product_orders), _is_paid(is_paid)
 {
 }
 
@@ -73,16 +76,44 @@ unsigned int Order::get_count() const
 void Order::add_product_order(const ProductOrder &product_order)
 {
     product_orders.push_back(product_order);
+    call_callbacks();
 }
 
 void Order::remove_product_order(int index)
 {
     product_orders.erase(std::next(product_orders.begin(), index));
+    call_callbacks();
 }
 
 void Order::set_product_order(int index, const ProductOrder &product_order)
 {
     product_orders[index] = product_order;
+    call_callbacks();
+}
+
+const bool &Order::is_paid() const
+{
+    return _is_paid;
+}
+
+bool Order::pay()
+{
+    if (_is_paid)
+        return false;
+    for (size_t i = 0; i < product_orders.size(); i++)
+    {
+        if (product_orders[i].count > product_orders[i].product.get_available_count())
+            return false;
+    }
+    for (size_t i = 0; i < product_orders.size(); i++)
+    {
+        product_orders[i].product.set_available_count(
+            product_orders[i].product.get_available_count() - product_orders[i].count
+        );
+    }
+    _is_paid = true;
+    call_callbacks();
+    return true;
 }
 
 inline void Order::call_callbacks()
@@ -96,6 +127,7 @@ void Order::show_info() const
     std::cout << "Order ID      : " << get_id() << std::endl;
     std::cout << "Total price   : " << std::setprecision(2) << std::fixed << get_total()
               << std::endl;
+    std::cout << "Is Paid       : " << (_is_paid ? "Yes" : "No") << std::endl;
     std::cout << "No. of Orders : " << get_count() << std::endl;
 }
 
@@ -169,10 +201,13 @@ std::string Order::to_string() const
 }
 
 Order Order::from_string(
-    const unsigned int id, const std::string &data, Products &products
+    const unsigned int id,
+    const std::string &data,
+    const bool &is_paid,
+    Products &products
 )
 {
-    return Order(id, Order::from_string(data, products));
+    return Order(id, Order::from_string(data, products), is_paid);
 }
 
 // Orders
@@ -214,7 +249,7 @@ Order *Orders::get_order(const unsigned int &id, Products &products)
         Record &order_info = records[0];
         return new Order(
             std::stoi(order_info[0]), Order::from_string(order_info[1], products),
-            [this](Order &p) { this->save_changed_order(p); }
+            std::stoi(order_info[2]), [this](Order &p) { this->save_changed_order(p); }
         );
     }
     return nullptr;
@@ -229,7 +264,7 @@ const std::vector<Order> &Orders::list_orders(Products &products)
         const Record &order_info = records[i];
         orders->push_back(Order(
             std::stoi(order_info[0]), Order::from_string(order_info[1], products),
-            [this](Order &p) { this->save_changed_order(p); }
+            std::stoi(order_info[2]), [this](Order &p) { this->save_changed_order(p); }
         ));
     }
     return *orders;
@@ -243,7 +278,8 @@ void Orders::set_database_path(std::string path)
 void Orders::save_changed_order(Order &order)
 {
     execute(
-        "UPDATE orders SET product_orders=? WHERE id=?",
-        {order.to_string(), std::to_string(order.get_id())}
+        "UPDATE orders SET product_orders=?, is_paid=? WHERE id=?",
+        {order.to_string(), std::to_string((int)order.is_paid()),
+         std::to_string(order.get_id())}
     );
 }
