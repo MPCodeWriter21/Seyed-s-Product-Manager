@@ -25,6 +25,7 @@ class Order : public DatabaseObject
     Order(
         unsigned int id,
         const std::vector<ProductOrder> &product_orders,
+        const bool &is_paid = false,
         const std::function<void(Order &)> &on_change_callback = nullptr
     );
 
@@ -35,6 +36,8 @@ class Order : public DatabaseObject
     void add_product_order(const ProductOrder &product_order);
     void remove_product_order(int index);
     void set_product_order(int index, const ProductOrder &product_order);
+    const bool &is_paid() const;
+    bool pay();
     void show_info() const;
     static std::string to_string(std::vector<ProductOrder> product_orders);
     static std::vector<ProductOrder> from_string(
@@ -42,7 +45,10 @@ class Order : public DatabaseObject
     );
     std::string to_string() const;
     static Order from_string(
-        const unsigned int id, const std::string &data, Products &products
+        const unsigned int id,
+        const std::string &data,
+        const bool &is_paid,
+        Products &products
     );
 
     std::function<void(Order &)> on_change_callback;
@@ -52,6 +58,7 @@ class Order : public DatabaseObject
 
     unsigned int id;
     std::vector<ProductOrder> product_orders;
+    bool _is_paid;
 };
 
 class Orders : protected Database

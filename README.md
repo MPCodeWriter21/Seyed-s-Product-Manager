@@ -38,6 +38,7 @@ Features & Plans
 + [x] Stores product data, user data and orders in a SQLite database
 + [ ] A useful and feature heavy user management solution and hashing passwords
 + [x] A proper codebase, easy to build
++ [ ] Colorful messages
 
 Dependencies
 ------------
