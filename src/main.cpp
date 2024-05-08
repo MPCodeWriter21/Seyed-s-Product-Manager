@@ -191,7 +191,7 @@ int main(int argc, char *argv[])
     else if (*command == "add-user")
     {
         // TODO: ...
-        std::cout << "Not implemented yet" << std::endl;
+        std::cout << "Not implemented yet..." << std::endl;
     }
     else if (*command == "new-order")
     {
@@ -272,6 +272,7 @@ int main(int argc, char *argv[])
     }
     else if (*command == "pay-order")
     {
+        std::cout << "Not implemented yet..." << std::endl;
         // TODO: ...
     }
     else
