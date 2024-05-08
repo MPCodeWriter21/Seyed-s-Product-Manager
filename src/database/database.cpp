@@ -1,7 +1,10 @@
 #include "database.hpp"
-#include "utils/exceptions.hpp"
 #include "sqlite/sqlite3.h"
+#include "utils/exceptions.hpp"
+#include "utils/utils.hpp"
 #include "utils/warnings.hpp"
+#include <exception>
+#include <string>
 #include <vector>
 
 Database::Database()
@@ -35,8 +38,9 @@ void Database::close_db()
 
 DISABLE_WARNING_PUSH
 DISABLE_WARNING_UNREFERENCED_FORMAL_PARAMETER
-int _select_callback(void *data, int num_fields, char **fields, char **col_names)
-DISABLE_WARNING_POP
+int _select_callback(
+    void *data, int num_fields, char **fields, char **col_names
+) DISABLE_WARNING_POP
 {
     std::vector<Record> *records = static_cast<std::vector<Record> *>(data);
     try
@@ -52,11 +56,58 @@ DISABLE_WARNING_POP
     return 0;
 }
 
-std::vector<Record> Database::execute(const std::string &command)
+/* Runs the command and replaces un-escaped question marks(?) in the command with the
+ * given `values`.
+ * + Values will be escaped automatically.
+ * + Number of `values` should equal the number of question marks in the command
+ */
+std::vector<Record> Database::execute(
+    const std::string &command, const std::initializer_list<std::string> values
+)
 {
+    size_t index_for_values = 0, i = 0;
+    std::string processed_command = "";
+    if (values.size() == 0)
+    {
+        processed_command = command;
+        i = command.length();
+    }
+    for (; i < command.length(); i++)
+    {
+        if (command[i] == '?')
+        {
+            if (i == index_for_values)
+                throw std::exception("More question marks than `values`!");
+            if (i == 0)
+                // This wouldn't make sense to have and will create a sql error but
+                // I just wanted to make it a thing LOL
+                processed_command += '?';
+            else if (command[i - 1] == '\\')
+            {
+                processed_command =
+                    processed_command.substr(0, processed_command.length() - 1) + '?';
+            }
+            else
+            {
+                processed_command +=
+                    '"' + escape_string(values.begin()[index_for_values]) + '"';
+                index_for_values++;
+            }
+        }
+        else
+            processed_command += command[i];
+    }
     std::vector<Record> records;
-    status_code =
-        sqlite3_exec(db, command.c_str(), _select_callback, &records, &error_message);
+    status_code = sqlite3_exec(
+        db, processed_command.c_str(), _select_callback, &records, &error_message
+    );
+    for (size_t i = 0; i < records.size(); i++)
+    {
+        for (size_t j = 0; j < records[i].size(); j++)
+        {
+            records[i][j] = unescape_string(records[i][j]);
+        }
+    }
     return records;
 }
 
