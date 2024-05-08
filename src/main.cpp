@@ -209,7 +209,7 @@ int main(int argc, char *argv[])
     else if (*command == "add-user")
     {
         // TODO: ...
-        std::cout << "Not implemented yet" << std::endl;
+        std::cout << "Not implemented yet..." << std::endl;
     }
     else if (*command == "new-order")
     {
@@ -227,14 +227,37 @@ int main(int argc, char *argv[])
                 std::cout << "Product with id " << product_id << " does not exist!\n";
                 continue;
             }
-            std::cout << "Enter the number of products: ";
+            int product_order_index = -1;
+            for (size_t i = 0; i < product_orders.size(); i++)
+            {
+                if (product_orders[i].product.get_id() == product->get_id())
+                {
+                    product_order_index = i;
+                    break;
+                }
+            }
+            if (product_order_index == -1)
+                std::cout << "Enter the number of products: ";
+            else
+                std::cout << "Enter the number of products(Currently "
+                          << product_orders[product_order_index].count << "): ";
             std::cin >> count;
             if (count < 1)
             {
-                std::cout << "No protuct was added to the order!\n";
+                std::cout << "No product was added to the order!\n";
                 continue;
             }
-            product_orders.push_back(ProductOrder(*product, count));
+            if (count > product->get_available_count())
+            {
+                std::cout << "Sorry but there are only "
+                          << product->get_available_count()
+                          << " of this product left in stock!\n";
+                continue;
+            }
+            if (product_order_index == -1)
+                product_orders.push_back(ProductOrder(*product, count));
+            else
+                product_orders[product_order_index].count = count;
         }
         if (product_orders.size() < 1)
         {
@@ -290,7 +313,45 @@ int main(int argc, char *argv[])
     }
     else if (*command == "pay-order")
     {
-        // TODO: ...
+        int *id = (int *)args.get("order-id");
+        // Checks to see if valid arguments were supplied to the program
+        if (id == nullptr)
+        {
+            parser.show_help();
+            parser.parser_error("You must specify the order's ID.");
+        }
+        Order *order = orders.get_order(*id, products);
+        if (order == nullptr)
+        {
+            std::cerr << "Could not find an order with id=" + std::to_string(*id)
+                      << std::endl;
+            return 0;
+        }
+        if (order->is_paid())
+        {
+            std::cerr << "Order with id=" + std::to_string(*id) + " is already paid!\n";
+            return 0;
+        }
+        const std::vector<ProductOrder> &product_orders = order->get_product_orders();
+        for (size_t i = 0; i < product_orders.size(); i++)
+        {
+            if (product_orders[i].count >
+                product_orders[i].product.get_available_count())
+            {
+                std::cerr << "Sorry but there are only "
+                          << product_orders[i].product.get_available_count() << " of "
+                          << product_orders[i].product.get_name()
+                          << " is left and we cannot sell " << product_orders[i].count
+                          << " of them!" << std::endl;
+                return 0;
+            }
+        }
+        if (order->pay())
+            std::cout << "The order with id=" << std::to_string(*id)
+                      << " was paid successfully!\n";
+        else
+            std::cout << "There was a problem paying the order with id="
+                      << std::to_string(*id) << std::endl;
     }
     else
     {
