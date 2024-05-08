@@ -10,10 +10,10 @@
 enum TYPE
 {
     NO_INPUT,
-    BOOL,
+    BOOOL,
     STRING,
-    INT,
-    DOUBLE
+    INNT,
+    DOOUBLE
 };
 
 struct Argument
