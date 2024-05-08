@@ -20,13 +20,17 @@ enum Permissions
 
 class Password
 {
-  public:
     Password(std::string password);
 
+  public:
+    static Password from_string(const std::string &password);
+    static Password from_hash(const std::string &password);
+
     std::string to_string() const;
+    bool operator==(const Password &other) const;
 
   private:
-    std::string password;
+    std::string hashed_password;
 };
 
 class User : public DatabaseObject
@@ -39,7 +43,7 @@ class User : public DatabaseObject
     User(
         unsigned int id,
         std::string username,
-        std::string password,
+        Password password,
         std::string name,
         double balance,
         Permissions permissions,
@@ -52,7 +56,8 @@ class User : public DatabaseObject
     const double &get_balance() const;
     const Permissions &get_permissions() const;
     void set_username(const std::string username);
-    void set_password(const std::string username);
+    bool set_password(const std::string username, const Password &old_password);
+    bool check_password(const Password &password) const;
     void set_name(const std::string name);
     void set_balance(const double price);
     void add_balance(const double price);
@@ -65,11 +70,9 @@ class User : public DatabaseObject
   protected:
     inline void call_callbacks();
 
-    const std::string &get_password() const;
-
     unsigned int id;
     std::string username;
-    std::string password;
+    Password password;
     std::string name;
     double balance;
     Permissions permissions;
@@ -84,7 +87,7 @@ class Users : protected Database
         std::string *password = nullptr
     );
     Users(
-        Database& db,
+        Database &db,
         const std::string &username = "Seyed",
         std::string *password = nullptr
     );

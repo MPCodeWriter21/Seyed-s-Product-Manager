@@ -11,13 +11,38 @@
 
 Password::Password(std::string password)
 {
-    this->password = password;
+    this->hashed_password = password;
+}
+
+Password Password::from_string(const std::string &password)
+{
+    // TODO: Return SHA256 Hash instead of a rot13
+    std::string rot13 = "";
+    for (char c : password)
+    {
+        if (c >= 'a' && c <= 'z')
+            rot13 += ((c - 'a') + 13) % 26 + 'a';
+        else if (c >= 'A' && c <= 'Z')
+            rot13 += ((c - 'A') + 13) % 26 + 'A';
+        else
+            rot13 += c;
+    }
+    return Password(rot13);
+}
+Password Password::from_hash(const std::string &password)
+{
+    return Password(password);
 }
 
 std::string Password::to_string() const
 {
     // TODO: Make this return SHA256 hash
-    return password;
+    return hashed_password;
+}
+
+bool Password::operator==(const Password &other) const
+{
+    return hashed_password == other.hashed_password;
 }
 
 // User
@@ -32,7 +57,7 @@ std::string User::items = "id INTEGER PRIMARY KEY AUTOINCREMENT, "
 User::User(
     unsigned int id,
     std::string username,
-    std::string password,
+    Password password,
     std::string name,
     double balance,
     Permissions permissions,
@@ -52,11 +77,6 @@ const unsigned int &User::get_id() const
 const std::string &User::get_username() const
 {
     return username;
-}
-
-const std::string &User::get_password() const
-{
-    return password;
 }
 
 const std::string &User::get_name() const
@@ -80,10 +100,18 @@ void User::set_username(const std::string username)
     call_callbacks();
 }
 
-void User::set_password(const std::string password)
+bool User::set_password(const std::string password, const Password &old_password)
 {
-    this->password = password;
+    if (!check_password(old_password))
+        return false;
+    this->password = Password::from_string(password);
     call_callbacks();
+    return true;
+}
+
+bool User::check_password(const Password &password) const
+{
+    return password == this->password;
 }
 
 void User::set_name(const std::string name)
@@ -151,7 +179,10 @@ Users::Users(std::string path, const std::string &username, std::string *passwor
             {
                 *password += (rand() % 94) + 33;
             }
-            add_user(username, *password, username, 0, Permissions::ROOT);
+            add_user(
+                username, Password::from_string(*password), username, 0,
+                Permissions::ROOT
+            );
         }
     }
     create_table("users", User::items, true);
@@ -176,7 +207,10 @@ Users::Users(Database &db, const std::string &username, std::string *password)
             {
                 *password += (rand() % 94) + 33;
             }
-            add_user(username, *password, username, 0, Permissions::ROOT);
+            add_user(
+                username, Password::from_string(*password), username, 0,
+                Permissions::ROOT
+            );
         }
     }
     create_table("users", User::items, true);
@@ -215,8 +249,8 @@ User *Users::get_user(const unsigned int &id)
     {
         Record &user_info = records[0];
         return new User(
-            std::stoi(user_info[0]), user_info[1], user_info[2], user_info[3],
-            std::stod(user_info[4]), (Permissions)std::stoi(user_info[5]),
+            std::stoi(user_info[0]), user_info[1], Password::from_hash(user_info[2]),
+            user_info[3], std::stod(user_info[4]), (Permissions)std::stoi(user_info[5]),
             [this](User &p) { this->save_changed_user(p); }
         );
     }
@@ -238,8 +272,8 @@ User *Users::get_user(const std::string &username)
     {
         Record &user_info = records[0];
         return new User(
-            std::stoi(user_info[0]), user_info[1], user_info[2], user_info[3],
-            std::stod(user_info[4]), (Permissions)std::stoi(user_info[5]),
+            std::stoi(user_info[0]), user_info[1], Password::from_hash(user_info[2]),
+            user_info[3], std::stod(user_info[4]), (Permissions)std::stoi(user_info[5]),
             [this](User &p) { this->save_changed_user(p); }
         );
     }
@@ -254,8 +288,8 @@ const std::vector<User> &Users::list_users()
     {
         const Record &user_info = records[i];
         users->push_back(User(
-            std::stoi(user_info[0]), user_info[1], user_info[2], user_info[3],
-            std::stod(user_info[4]), (Permissions)std::stoi(user_info[5]),
+            std::stoi(user_info[0]), user_info[1], Password::from_hash(user_info[2]),
+            user_info[3], std::stod(user_info[4]), (Permissions)std::stoi(user_info[5]),
             [this](User &p) { this->save_changed_user(p); }
         ));
     }
@@ -271,8 +305,8 @@ const std::vector<User> &Users::get_users_by_permissions(const Permissions &perm
     {
         const Record &user_info = records[i];
         users->push_back(User(
-            std::stoi(user_info[0]), user_info[1], user_info[2], user_info[3],
-            std::stod(user_info[4]), (Permissions)std::stoi(user_info[5]),
+            std::stoi(user_info[0]), user_info[1], Password::from_hash(user_info[2]),
+            user_info[3], std::stod(user_info[4]), (Permissions)std::stoi(user_info[5]),
             [this](User &p) { this->save_changed_user(p); }
         ));
     }
@@ -289,7 +323,7 @@ void Users::save_changed_user(User &user)
     execute(
         "UPDATE users SET username=?, password=?, name=?, balance=?, permissions=? "
         "WHERE id=?",
-        {user.get_username(), user.get_password(), user.get_name(),
+        {user.get_username(), user.password.to_string(), user.get_name(),
          std::to_string(user.get_balance()), std::to_string(user.get_permissions()),
          std::to_string(user.get_id())}
     );

@@ -73,7 +73,7 @@ $(BUILD_DIR)/%.o: $(DATABASE_DIR)/%.cpp
 $(BUILD_DIR)/%.o: $(IMGUI_DIR)/%.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-$(BUILD_DIR)/%.o: $(IMGUI_OBJ_FILES) $(GUI_DIR)/%.cpp
+$(BUILD_DIR)/%.o: $(GUI_DIR)/%.cpp
 	$(CXX) $(CXXFLAGS) -c $^ -o $@
 
 $(FONT_OBJ): $(FONT_FILE)
@@ -100,7 +100,7 @@ $(DEBUG_BUILD_DIR)/%.o: $(DATABASE_DIR)/%.cpp
 $(DEBUG_BUILD_DIR)/%.o: $(IMGUI_DIR)/%.cpp
 	$(CXX) $(CXXFLAGS) -c $^ -o $@
 
-$(DEBUG_BUILD_DIR)/%.o: $(DEBUG_IMGUI_OBJ_FILES) $(GUI_DIR)/%.cpp
+$(DEBUG_BUILD_DIR)/%.o: $(GUI_DIR)/%.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 $(DEBUG_OUT): $(DEBUG_OBJ_FILES) $(DEBUG_SQLITE_OBJ_FILES) $(DEBUG_UTILS_OBJ_FILES) $(DEBUG_DATABASE_OBJ_FILES) $(FONT_OBJ) $(DEBUG_IMGUI_OBJ_FILES) $(DEBUG_GUI_OBJ_FILES)
