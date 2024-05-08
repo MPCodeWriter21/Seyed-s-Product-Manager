@@ -1,3 +1,7 @@
+#include "database/database.hpp"
+#include "database/order.hpp"
+#include "database/product.hpp"
+#include "database/user.hpp"
 #include "gui/gui.hpp"
 #include "gui/imgui/imgui.h"
 #include "gui/imgui/imgui_impl_dx9.h"
@@ -6,8 +10,12 @@
 #include <string>
 #include <tchar.h>
 
-int run_gui()
+int run_gui(Users &database)
 {
+    Users users((Users &)database);
+    Products products((Products &)database);
+    Orders orders((Orders &)database);
+
     // Create application window
     // ImGui_ImplWin32_EnableDpiAwareness();
     WNDCLASSEXW wc = {
@@ -72,16 +80,14 @@ int run_gui()
 
     // Main loop
     bool done = false;
-    bool dokme_sabt_mahsool = false;
-    int gheimat = 0;
-    bool dokme_Sabt_sefaresh = false;
-    bool dokme_Sefareshat = false;
+    bool add_product_button = false;
+    int price = 0;
+    bool new_order_button = false;
+    bool orders_button = false;
     bool dokme_Gardesh_mali = false;
-    bool dokme_Mahsoolat = false;
-    bool dokme_bastan = true;
+    bool products_button = false;
 
     bool logged = false;
-    std::string password = "1111";
     static char passput[128];
     bool wrong_pass = false;
     bool login_pass = false;
@@ -91,42 +97,42 @@ int run_gui()
     // Blonge Style
     style.Alpha = 1.0f;
     style.FrameRounding = 7.0f;
-    style.Colors[ImGuiCol_Text] = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
-    style.Colors[ImGuiCol_TextDisabled] = ImVec4(0.60f, 0.60f, 0.60f, 1.00f);
-    // style.Colors[ImGuiCol_WindowBg] = ImVec4(0.13f, 0.22f, 0.35f, 0.70f);
-    style.Colors[ImGuiCol_WindowBg] = ImVec4(0.16f, 0.16f, 0.16f, 1.00f);
-    style.Colors[ImGuiCol_PopupBg] = ImVec4(.00f, 1.00f, 1.00f, 0.94f);
-    // style.Colors[ImGuiCol_Border] = ImVec4(0.00f, 0.00f, 0.00f, 0.20f);
-    style.Colors[ImGuiCol_Border] = ImVec4(1.00f, 1.00f, 1.00f, 0.10f);
-    style.Colors[ImGuiCol_BorderShadow] = ImVec4(1.00f, 1.00f, 1.00f, 0.10f);
-    style.Colors[ImGuiCol_FrameBg] = ImVec4(0.05f, 0.00f, 0.20f, 0.94f);
-    style.Colors[ImGuiCol_FrameBgHovered] = ImVec4(0.26f, 0.59f, 0.98f, 0.40f);
-    style.Colors[ImGuiCol_FrameBgActive] = ImVec4(0.26f, 0.59f, 0.98f, 0.67f);
-    style.Colors[ImGuiCol_TitleBg] = ImVec4(1.00f, 0.45f, 0.12f, 1.00f);
-    style.Colors[ImGuiCol_TitleBgCollapsed] = ImVec4(1.00f, 0.45f, 0.12f, 0.70f);
-    style.Colors[ImGuiCol_TitleBgActive] = ImVec4(0.90f, 0.35f, 0.02f, 1.00f);
-    style.Colors[ImGuiCol_MenuBarBg] = ImVec4(0.86f, 0.86f, 0.86f, 1.00f);
-    style.Colors[ImGuiCol_ScrollbarBg] = ImVec4(0.98f, 0.98f, 0.98f, 0.53f);
-    style.Colors[ImGuiCol_ScrollbarGrab] = ImVec4(0.69f, 0.69f, 0.69f, 1.00f);
-    style.Colors[ImGuiCol_ScrollbarGrabHovered] = ImVec4(0.59f, 0.59f, 0.59f, 1.00f);
-    style.Colors[ImGuiCol_ScrollbarGrabActive] = ImVec4(0.49f, 0.49f, 0.49f, 1.00f);
-    style.Colors[ImGuiCol_CheckMark] = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
-    style.Colors[ImGuiCol_SliderGrab] = ImVec4(0.24f, 0.52f, 0.88f, 1.00f);
-    style.Colors[ImGuiCol_SliderGrabActive] = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
-    style.Colors[ImGuiCol_ButtonActive] = ImVec4(0.26f, 0.59f, 0.98f, 0.40f);
-    style.Colors[ImGuiCol_ButtonHovered] = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
-    style.Colors[ImGuiCol_Button] = ImVec4(0.15f, 0.02f, 0.68f, 1.00f);
-    style.Colors[ImGuiCol_Header] = ImVec4(0.26f, 0.59f, 0.98f, 0.31f);
-    style.Colors[ImGuiCol_HeaderHovered] = ImVec4(0.26f, 0.59f, 0.98f, 0.80f);
-    style.Colors[ImGuiCol_HeaderActive] = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
-    style.Colors[ImGuiCol_ResizeGrip] = ImVec4(1.00f, 1.00f, 1.00f, 0.50f);
-    style.Colors[ImGuiCol_ResizeGripHovered] = ImVec4(0.26f, 0.59f, 0.98f, 0.67f);
-    style.Colors[ImGuiCol_ResizeGripActive] = ImVec4(0.26f, 0.59f, 0.98f, 0.95f);
-    style.Colors[ImGuiCol_PlotLines] = ImVec4(0.39f, 0.39f, 0.39f, 1.00f);
-    style.Colors[ImGuiCol_PlotLinesHovered] = ImVec4(1.00f, 0.43f, 0.35f, 1.00f);
-    style.Colors[ImGuiCol_PlotHistogram] = ImVec4(0.90f, 0.70f, 0.00f, 1.00f);
-    style.Colors[ImGuiCol_PlotHistogramHovered] = ImVec4(1.00f, 0.60f, 0.00f, 1.00f);
-    style.Colors[ImGuiCol_TextSelectedBg] = ImVec4(0.26f, 0.59f, 0.98f, 0.35f);
+    // style.Colors[ImGuiCol_Text] = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
+    // style.Colors[ImGuiCol_TextDisabled] = ImVec4(0.60f, 0.60f, 0.60f, 1.00f);
+    // // style.Colors[ImGuiCol_WindowBg] = ImVec4(0.13f, 0.22f, 0.35f, 0.70f);
+    // style.Colors[ImGuiCol_WindowBg] = ImVec4(0.16f, 0.16f, 0.16f, 1.00f);
+    // style.Colors[ImGuiCol_PopupBg] = ImVec4(.00f, 1.00f, 1.00f, 0.94f);
+    // // style.Colors[ImGuiCol_Border] = ImVec4(0.00f, 0.00f, 0.00f, 0.20f);
+    // style.Colors[ImGuiCol_Border] = ImVec4(1.00f, 1.00f, 1.00f, 0.10f);
+    // style.Colors[ImGuiCol_BorderShadow] = ImVec4(1.00f, 1.00f, 1.00f, 0.10f);
+    // style.Colors[ImGuiCol_FrameBg] = ImVec4(0.05f, 0.00f, 0.20f, 0.94f);
+    // style.Colors[ImGuiCol_FrameBgHovered] = ImVec4(0.26f, 0.59f, 0.98f, 0.40f);
+    // style.Colors[ImGuiCol_FrameBgActive] = ImVec4(0.26f, 0.59f, 0.98f, 0.67f);
+    // style.Colors[ImGuiCol_TitleBg] = ImVec4(1.00f, 0.45f, 0.12f, 1.00f);
+    // style.Colors[ImGuiCol_TitleBgCollapsed] = ImVec4(1.00f, 0.45f, 0.12f, 0.70f);
+    // style.Colors[ImGuiCol_TitleBgActive] = ImVec4(0.90f, 0.35f, 0.02f, 1.00f);
+    // style.Colors[ImGuiCol_MenuBarBg] = ImVec4(0.86f, 0.86f, 0.86f, 1.00f);
+    // style.Colors[ImGuiCol_ScrollbarBg] = ImVec4(0.98f, 0.98f, 0.98f, 0.53f);
+    // style.Colors[ImGuiCol_ScrollbarGrab] = ImVec4(0.69f, 0.69f, 0.69f, 1.00f);
+    // style.Colors[ImGuiCol_ScrollbarGrabHovered] = ImVec4(0.59f, 0.59f, 0.59f, 1.00f);
+    // style.Colors[ImGuiCol_ScrollbarGrabActive] = ImVec4(0.49f, 0.49f, 0.49f, 1.00f);
+    // style.Colors[ImGuiCol_CheckMark] = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
+    // style.Colors[ImGuiCol_SliderGrab] = ImVec4(0.24f, 0.52f, 0.88f, 1.00f);
+    // style.Colors[ImGuiCol_SliderGrabActive] = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
+    // style.Colors[ImGuiCol_ButtonActive] = ImVec4(0.26f, 0.59f, 0.98f, 0.40f);
+    // style.Colors[ImGuiCol_ButtonHovered] = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
+    // style.Colors[ImGuiCol_Button] = ImVec4(0.15f, 0.02f, 0.68f, 1.00f);
+    // style.Colors[ImGuiCol_Header] = ImVec4(0.26f, 0.59f, 0.98f, 0.31f);
+    // style.Colors[ImGuiCol_HeaderHovered] = ImVec4(0.26f, 0.59f, 0.98f, 0.80f);
+    // style.Colors[ImGuiCol_HeaderActive] = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
+    // style.Colors[ImGuiCol_ResizeGrip] = ImVec4(1.00f, 1.00f, 1.00f, 0.50f);
+    // style.Colors[ImGuiCol_ResizeGripHovered] = ImVec4(0.26f, 0.59f, 0.98f, 0.67f);
+    // style.Colors[ImGuiCol_ResizeGripActive] = ImVec4(0.26f, 0.59f, 0.98f, 0.95f);
+    // style.Colors[ImGuiCol_PlotLines] = ImVec4(0.39f, 0.39f, 0.39f, 1.00f);
+    // style.Colors[ImGuiCol_PlotLinesHovered] = ImVec4(1.00f, 0.43f, 0.35f, 1.00f);
+    // style.Colors[ImGuiCol_PlotHistogram] = ImVec4(0.90f, 0.70f, 0.00f, 1.00f);
+    // style.Colors[ImGuiCol_PlotHistogramHovered] = ImVec4(1.00f, 0.60f, 0.00f, 1.00f);
+    // style.Colors[ImGuiCol_TextSelectedBg] = ImVec4(0.26f, 0.59f, 0.98f, 0.35f);
     // style.Colors[ImGuiCol_] = ImVec4(0.26f, 0.59f, 0.98f, 0.35f);
     style.WindowRounding = 10;
     style.WindowBorderSize = 2;
@@ -167,7 +173,6 @@ int run_gui()
         // ImGui :: SetWindowPos  ( ImGui :: GetMainViewport () -> Pos ) ;
         // ImGui :: SetWindowSize ( ImGui :: GetMainViewport () -> Size ) ;
 
-        // panjare man
         ImGui::PushFont(mainfont);
         ImGui::SetNextWindowPos(ImVec2(600, 250));
         ImGui::SetNextWindowSize(ImVec2(200, 200));
@@ -191,7 +196,8 @@ int run_gui()
                 }
                 if (ImGui::Button("login"))
                 {
-                    if (passput == password)
+                    if (users.get_user(1)->check_password(Password::from_string(passput)
+                        ))
                     {
                         logged = true;
                     }
@@ -210,33 +216,33 @@ int run_gui()
         {
             login_pass = true;
             if (ImGui::Begin(
-                    "main panjare", NULL,
+                    "Main Window", NULL,
                     ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize |
                         ImGuiWindowFlags_NoMove
                 ))
             {
                 // ImGui::SetWindowFontScale(2.0f);
                 ImGui::SetCursorPos(ImVec2(280, 40));
-                ImGui::Text("SALAM");
+                ImGui::Text("Hello!");
                 ImGui::SetCursorPos(ImVec2(160, 60));
-                ImGui::Text("amaliat morede nazar ra entekhab konid");
+                ImGui::Text("Please choose the action:");
 
                 ImGui::SetCursorPos(ImVec2(20, 100));
-                if (ImGui::Button("sabt mahsool", ImVec2(250, 60)))
+                if (ImGui::Button("New Product", ImVec2(250, 60)))
                 {
-                    dokme_sabt_mahsool = true;
+                    add_product_button = true;
                 }
 
                 ImGui::SetCursorPos(ImVec2(320, 100));
-                if (ImGui::Button("Sabt sefaresh", ImVec2(250, 60)))
+                if (ImGui::Button("New Order", ImVec2(250, 60)))
                 {
-                    dokme_Sabt_sefaresh = true;
+                    new_order_button = true;
                 }
 
                 ImGui::SetCursorPos(ImVec2(20, 165));
-                if (ImGui::Button("Sefareshat", ImVec2(250, 60)))
+                if (ImGui::Button("List of Orders", ImVec2(250, 60)))
                 {
-                    dokme_Sefareshat = true;
+                    orders_button = true;
                 }
 
                 ImGui::SetCursorPos(ImVec2(320, 165));
@@ -246,31 +252,31 @@ int run_gui()
                 }
 
                 ImGui::SetCursorPos(ImVec2(150, 230));
-                if (ImGui::Button("Mahsoolat", ImVec2(300, 60)))
+                if (ImGui::Button("Products", ImVec2(300, 60)))
                 {
-                    dokme_Mahsoolat = true;
+                    products_button = true;
                 }
 
                 ImGui::End();
             }
         }
         ImGui::SetNextWindowSize(ImVec2(200, 200));
-        if (dokme_sabt_mahsool)
+        if (add_product_button)
         {
             if (ImGui::Begin(
-                    "sabt mahsool panjare", &dokme_sabt_mahsool,
+                    "New Product Window", &add_product_button,
                     ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize
                 ))
             {
-                ImGui::SliderInt("Gheimat", &gheimat, 0, 100000);
+                ImGui::SliderInt("Price", &price, 0, 100000);
             }
             ImGui::End();
         }
         ImGui::SetNextWindowSize(ImVec2(300, 400));
-        if (dokme_Sabt_sefaresh)
+        if (new_order_button)
         {
             if (ImGui::Begin(
-                    "Sabt sefaresh panjare", &dokme_Sabt_sefaresh,
+                    "New Order Window", &new_order_button,
                     ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize
                 ))
             {
@@ -278,10 +284,10 @@ int run_gui()
             ImGui::End();
         }
         ImGui::SetNextWindowSize(ImVec2(400, 400));
-        if (dokme_Sefareshat)
+        if (orders_button)
         {
             if (ImGui::Begin(
-                    "Sefareshat panjare", &dokme_Sefareshat,
+                    "Orders Window", &orders_button,
                     ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize
                 ))
             {
@@ -300,10 +306,10 @@ int run_gui()
             ImGui::End();
         }
         ImGui::SetNextWindowSize(ImVec2(600, 800));
-        if (dokme_Mahsoolat)
+        if (products_button)
         {
             if (ImGui::Begin(
-                    "Mahsoolat panjare", &dokme_Mahsoolat,
+                    "Products Window", &products_button,
                     ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize
                 ))
             {
@@ -429,4 +435,3 @@ LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
     }
     return ::DefWindowProcW(hWnd, msg, wParam, lParam);
 }
-// direct3d

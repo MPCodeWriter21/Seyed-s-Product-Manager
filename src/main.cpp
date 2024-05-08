@@ -63,7 +63,7 @@ int main(int argc, char *argv[])
     std::string *command = (std::string *)args.get("command");
     if (command == nullptr)
     {
-        return run_gui();
+        return run_gui(users);
     }
     if (*command == "add-product")
     {
