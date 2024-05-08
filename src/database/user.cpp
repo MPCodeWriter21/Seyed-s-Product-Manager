@@ -1,7 +1,6 @@
 #include "database.hpp"
 #include "sqlite/sqlite3.h"
 #include "user.hpp"
-#include "utils/utils.hpp"
 #include <cstdlib>
 #include <iostream>
 #include <ostream>
@@ -12,8 +11,6 @@
 
 Password::Password(std::string password)
 {
-    replace(password, "'", "\\'");
-    replace(password, "\"", "\\\"");
     this->password = password;
 }
 
@@ -42,7 +39,8 @@ User::User(
     std::function<void(User &)> on_change_callback
 )
     : DatabaseObject(items), on_change_callback(on_change_callback), id(id),
-      username(username), name(name), balance(balance), permissions(permissions)
+      username(username), password(password), name(name), balance(balance),
+      permissions(permissions)
 {
 }
 
@@ -191,9 +189,10 @@ void Users::add_user(
 )
 {
     execute(
-        "INSERT INTO users(username, password, name, balance, permissions) VALUES(\"" +
-        username + "\", \"" + password.to_string() + "\", \"" + name + "\", " +
-        std::to_string(balance) + ", " + std::to_string(permissions) + ")"
+        "INSERT INTO users(username, password, name, balance, permissions) VALUES(?, "
+        "?, ?, ?, ?)",
+        {username, password.to_string(), name, std::to_string(balance),
+         std::to_string(permissions)}
     );
     if (status_code != SQLITE_OK)
         database_error("Error adding new user: " + (std::string)error_message);
@@ -225,7 +224,7 @@ User *Users::get_user(const unsigned int &id)
 User *Users::get_user(const std::string &username)
 {
     std::vector<Record> records =
-        execute("SELECT * FROM users WHERE username=" + username);
+        execute("SELECT * FROM users WHERE username=?", {username});
 
     // Found no user with the id
     if (records.size() < 1)
@@ -286,10 +285,10 @@ void Users::set_database_path(std::string path)
 void Users::save_changed_user(User &user)
 {
     execute(
-        "UPDATE users SET username=\"" + user.get_username() + "\", password=\"" +
-        user.get_password() + "\", name=\"" + user.get_name() +
-        "\", balance=" + std::to_string(user.get_balance()) +
-        ", permissions=" + std::to_string(user.get_permissions()) +
-        " WHERE id=" + std::to_string(user.get_id())
+        "UPDATE users SET username=?, password=?, name=?, balance=?, permissions=? "
+        "WHERE id=?",
+        {user.get_username(), user.get_password(), user.get_name(),
+         std::to_string(user.get_balance()), std::to_string(user.get_permissions()),
+         std::to_string(user.get_id())}
     );
 }
