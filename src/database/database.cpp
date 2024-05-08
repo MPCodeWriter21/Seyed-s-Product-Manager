@@ -3,6 +3,7 @@
 #include "utils/exceptions.hpp"
 #include "utils/utils.hpp"
 #include "utils/warnings.hpp"
+#include <exception>
 #include <string>
 #include <vector>
 
@@ -55,29 +56,28 @@ int _select_callback(
     return 0;
 }
 
-std::vector<Record> Database::execute(const std::string &command)
-{
-    std::vector<Record> records;
-    status_code =
-        sqlite3_exec(db, command.c_str(), _select_callback, &records, &error_message);
-    return records;
-}
-
 /* Runs the command and replaces un-escaped question marks(?) in the command with the
  * given `values`.
  * + Values will be escaped automatically.
  * + Number of `values` should equal the number of question marks in the command
  */
 std::vector<Record> Database::execute(
-    const std::string &command, const std::string values[]
+    const std::string &command, const std::initializer_list<std::string> values
 )
 {
-    size_t index_for_values = 0;
+    size_t index_for_values = 0, i = 0;
     std::string processed_command = "";
-    for (size_t i = 0; i < command.length(); i++)
+    if (values.size() == 0)
+    {
+        processed_command = command;
+        i = command.length();
+    }
+    for (; i < command.length(); i++)
     {
         if (command[i] == '?')
         {
+            if (i == index_for_values)
+                throw std::exception("More question marks than `values`!");
             if (i == 0)
                 // This wouldn't make sense to have and will create a sql error but
                 // I just wanted to make it a thing LOL
@@ -89,7 +89,8 @@ std::vector<Record> Database::execute(
             }
             else
             {
-                processed_command += escape_string(values[index_for_values]);
+                processed_command +=
+                    '"' + escape_string(values.begin()[index_for_values]) + '"';
                 index_for_values++;
             }
         }
@@ -100,6 +101,13 @@ std::vector<Record> Database::execute(
     status_code = sqlite3_exec(
         db, processed_command.c_str(), _select_callback, &records, &error_message
     );
+    for (size_t i = 0; i < records.size(); i++)
+    {
+        for (size_t j = 0; j < records[i].size(); j++)
+        {
+            records[i][j] = unescape_string(records[i][j]);
+        }
+    }
     return records;
 }
 

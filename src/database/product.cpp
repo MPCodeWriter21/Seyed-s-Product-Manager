@@ -110,9 +110,8 @@ void Products::add_product(
 {
     execute(
         "INSERT INTO products(name, price, available_count, description) "
-        "VALUES(\"" +
-        name + "\", " + std::to_string(price) + ", " + std::to_string(available_count) +
-        ", \"" + description + "\")"
+        "VALUES(?,?,?,?)",
+        {name, std::to_string(price), std::to_string(available_count), description}
     );
     if (status_code != SQLITE_OK)
         database_error("Error adding new product: " + (std::string)error_message);
@@ -182,9 +181,10 @@ void Products::set_database_path(std::string path)
 void Products::save_changed_product(Product &product)
 {
     execute(
-        "UPDATE products SET name=\"" + product.get_name() +
-        "\", price=" + std::to_string(product.get_price()) + ", available_count=" +
-        std::to_string(product.get_available_count()) + ", description=\"" +
-        product.get_description() + "\" WHERE id=" + std::to_string(product.get_id())
+        "UPDATE products SET name=?, price=?, available_count=?, description=? WHERE "
+        "id=?",
+        {product.get_name(), std::to_string(product.get_price()),
+         std::to_string(product.get_available_count()), product.get_description(),
+         std::to_string(product.get_id())}
     );
 }

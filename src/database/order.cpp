@@ -190,9 +190,8 @@ Orders::Orders(Orders &orders) : Database(orders)
 void Orders::add_order(const std::vector<ProductOrder> &product_orders)
 {
     execute(
-        "INSERT INTO orders(product_orders) "
-        "VALUES(\"" +
-        Order::to_string(product_orders) + "\")"
+        "INSERT INTO orders(product_orders) VALUES(?)",
+        {Order::to_string(product_orders)}
     );
 
     if (status_code != SQLITE_OK)
@@ -202,7 +201,7 @@ void Orders::add_order(const std::vector<ProductOrder> &product_orders)
 Order *Orders::get_order(const unsigned int &id, Products &products)
 {
     std::vector<Record> records =
-        execute("SELECT * FROM orders WHERE id=" + std::to_string(id));
+        execute("SELECT * FROM orders WHERE id=?", {std::to_string(id)});
 
     // Found no order with the id
     if (records.size() < 1)
@@ -244,7 +243,7 @@ void Orders::set_database_path(std::string path)
 void Orders::save_changed_order(Order &order)
 {
     execute(
-        "UPDATE orders SET product_orders=\"" + order.to_string() +
-        "\" WHERE id=" + std::to_string(order.get_id())
+        "UPDATE orders SET product_orders=? WHERE id=?",
+        {order.to_string(), std::to_string(order.get_id())}
     );
 }
