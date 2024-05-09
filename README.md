@@ -64,13 +64,12 @@ Root User:
         Password: [RANDOM GENERATED PASSWORD]
 
 
-usage: D:\Programming\cpp\Seyed-s-Product-Manager\build\seyed_app.out [--help] [-i PRODUCT-ID]
- [-n PRODUCT-NAME] [-p PRICE] [-a AVAILABLE-COUNT] [-d DESCRIPTION] [-I ORDER-ID]
-                                                                      [command]
+usage: build\seyed_app.out [--help] [-i PRODUCT-ID] [-n PRODUCT-NAME] [-p PRICE] [-a AVAILABLE-COUNT] [-d DESCRIPTION] [-I ORDER-ID] [-f FROM-DATE] [-t TO-DATE]
+       [command]
 
 Positional Arguments:
-  command               Commands: add-product, get-product, list-products, list-sold-out, edit
--product, add-user, new-order, list-orders, get-order, pay-order
+  command               Commands: add-product, get-product, list-products, list-sold-out, ed
+it-product, add-user, new-order, list-orders, get-order, pay-order, turnover
 
 Options:
   --help, -h            Shows this help text.
@@ -80,6 +79,8 @@ Options:
   -a AVAILABLE-COUNT, --available-count AVAILABLE-COUNT         Product ID
   -d DESCRIPTION, --product-description DESCRIPTION             Product Description
   -I ORDER-ID, --order-id ORDER-ID              Order ID
+  -f FROM-DATE, --from-date FROM-DATE           Starting date for the financial turnover report
+  -t TO-DATE, --to-date TO-DATE         Ending date for the financial turnover report
 
 Error: Main Parser: Please enter a command!
 ```
@@ -156,6 +157,15 @@ build/seyed_app.out list-orders
 ```bash
 # Get the information about the order with id=3
 build/seyed_app.out get-order -I 3
+```
++ `turnover`: Shows information about the financial turnover in a given time frame. (
+  Default time frame: From 1 month ago to now)
+```bash
+# Running with no paramenters
+build/seyed_app.out turnover
+
+# Running with a specific starting and ending date
+build/seyed_app.out turnover -f "2024-01-01" -t "2024-07-01"
 ```
   
 Contributions

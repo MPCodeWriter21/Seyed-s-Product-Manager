@@ -4,6 +4,7 @@
 #include "utils/utils.hpp"
 #include "utils/warnings.hpp"
 #include <exception>
+#include <iostream>
 #include <string>
 #include <vector>
 
@@ -97,6 +98,57 @@ std::vector<Record> Database::execute(
         else
             processed_command += command[i];
     }
+    std::vector<Record> records;
+    status_code = sqlite3_exec(
+        db, processed_command.c_str(), _select_callback, &records, &error_message
+    );
+    for (size_t i = 0; i < records.size(); i++)
+    {
+        for (size_t j = 0; j < records[i].size(); j++)
+        {
+            records[i][j] = unescape_string(records[i][j]);
+        }
+    }
+    return records;
+}
+
+std::vector<Record> Database::execute(
+    const std::string &command, const std::vector<std::string> &values
+)
+{
+    size_t index_for_values = 0, i = 0;
+    std::string processed_command = "";
+    if (values.size() == 0)
+    {
+        processed_command = command;
+        i = command.length();
+    }
+    for (; i < command.length(); i++)
+    {
+        if (command[i] == '?')
+        {
+            if (i == index_for_values)
+                error("More question marks than `values`!");
+            if (i == 0)
+                // This wouldn't make sense to have and will create a sql error but
+                // I just wanted to make it a thing LOL
+                processed_command += '?';
+            else if (command[i - 1] == '\\')
+            {
+                processed_command =
+                    processed_command.substr(0, processed_command.length() - 1) + '?';
+            }
+            else
+            {
+                processed_command +=
+                    '"' + escape_string(values.begin()[index_for_values]) + '"';
+                index_for_values++;
+            }
+        }
+        else
+            processed_command += command[i];
+    }
+    std::cout << processed_command << std::endl;
     std::vector<Record> records;
     status_code = sqlite3_exec(
         db, processed_command.c_str(), _select_callback, &records, &error_message

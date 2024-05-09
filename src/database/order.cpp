@@ -120,7 +120,8 @@ const double &Order::get_pay_julian_day() const
 std::string Order::get_pay_date() const
 {
     std::vector<Record> data = parent.execute(
-        "SELECT date(pay_date, 'localtime') FROM orders WHERE id=?", {std::to_string(id)}
+        "SELECT date(pay_date, 'localtime') FROM orders WHERE id=?",
+        {std::to_string(id)}
     );
     return data[0][0];
 }
@@ -128,7 +129,8 @@ std::string Order::get_pay_date() const
 std::string Order::get_pay_time() const
 {
     std::vector<Record> data = parent.execute(
-        "SELECT time(pay_date, 'localtime') FROM orders WHERE id=?", {std::to_string(id)}
+        "SELECT time(pay_date, 'localtime') FROM orders WHERE id=?",
+        {std::to_string(id)}
     );
     return data[0][0];
 }
@@ -315,20 +317,65 @@ Order *Orders::get_order(const unsigned int &id, Products &products)
     return nullptr;
 }
 
-const std::vector<Order> &Orders::list_orders(Products &products)
+std::vector<Order> Orders::get_orders(
+    const std::initializer_list<std::string> &from_date,
+    const std::initializer_list<std::string> &to_date,
+    Products &products
+)
 {
-    std::vector<Order> *orders = new std::vector<Order>();
-    std::vector<Record> records = execute("SELECT * FROM orders");
+    std::vector<Order> orders;
+    std::vector<Record> records;
+    std::string query = "SELECT * FROM orders";
+    if (from_date.size() != 0 || to_date.size() != 0)
+        query += " WHERE ";
+    if (from_date.size() != 0)
+    {
+        query += "pay_date > julianday(?";
+        for (unsigned int i = 1; i < from_date.size(); i++)
+            query += ",?";
+        query += ")";
+    }
+    if (from_date.size() != 0 && to_date.size() != 0)
+        query += " AND ";
+    if (to_date.size() != 0)
+    {
+        query += "pay_date < julianday(?";
+        for (unsigned int i = 1; i < to_date.size(); i++)
+            query += ",?";
+        query += ")";
+    }
+    std::vector<std::string> values;
+    for (unsigned int i = 0; i < from_date.size(); i++)
+        values.push_back(from_date.begin()[i]);
+    for (unsigned int i = 0; i < to_date.size(); i++)
+        values.push_back(to_date.begin()[i]);
+    records = execute(query, values);
     for (unsigned int i = 0; i < records.size(); i++)
     {
         const Record &order_info = records[i];
-        orders->push_back(Order(
+        orders.push_back(Order(
             std::stoi(order_info[0]), Order::from_string(order_info[1], products),
             *this, std::stod(order_info[2]), std::stoi(order_info[3]),
             [this](Order &p) { this->save_changed_order(p); }
         ));
     }
-    return *orders;
+    return orders;
+}
+
+std::vector<Order> Orders::list_orders(Products &products)
+{
+    std::vector<Order> orders;
+    std::vector<Record> records = execute("SELECT * FROM orders");
+    for (unsigned int i = 0; i < records.size(); i++)
+    {
+        const Record &order_info = records[i];
+        orders.push_back(Order(
+            std::stoi(order_info[0]), Order::from_string(order_info[1], products),
+            *this, std::stod(order_info[2]), std::stoi(order_info[3]),
+            [this](Order &p) { this->save_changed_order(p); }
+        ));
+    }
+    return orders;
 }
 
 void Orders::set_database_path(std::string path)
