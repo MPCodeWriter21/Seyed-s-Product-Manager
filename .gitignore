@@ -48,3 +48,5 @@ bin/
 /gui-testing/Project imgui/x64/Release
 src/gui/x64
 imgui.ini
+
+.vs/
