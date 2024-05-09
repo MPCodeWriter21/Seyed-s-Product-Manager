@@ -78,7 +78,7 @@ std::vector<Record> Database::execute(
         if (command[i] == '?')
         {
             if (i == index_for_values)
-                throw std::exception("More question marks than `values`!");
+                database_error("More question marks than `values`!");
             if (i == 0)
                 // This wouldn't make sense to have and will create a sql error but
                 // I just wanted to make it a thing LOL
