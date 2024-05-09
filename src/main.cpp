@@ -45,6 +45,9 @@ int main(int argc, char *argv[])
         {"-t", "--to-date"}, TYPE::STRING, "to-date", nullptr,
         "Ending date for the financial turnover report"
     );
+    parser.add_argument(
+        {"--gui"}, TYPE::BOOLEAN_ARGUMENT, "gui", nullptr, "Run the GUI application"
+    );
     auto args = parser.parse_args(argc, argv);
 
     enable_comma_locale();
@@ -63,11 +66,15 @@ int main(int argc, char *argv[])
     Products products((Products &)users);
     Orders orders((Orders &)users);
 
+    if (*(bool *)args.get("gui"))
+        return run_gui(users);
+
     // Get the command from the parser and check what options is chosen by the user
     std::string *command = (std::string *)args.get("command");
     if (command == nullptr)
     {
-        return run_gui(users);
+        parser.show_help();
+        parser.parser_error("Please enter a command!");
     }
     if (*command == "add-product")
     {

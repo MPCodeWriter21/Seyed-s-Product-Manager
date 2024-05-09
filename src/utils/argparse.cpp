@@ -84,10 +84,9 @@ ArgumentParser &ArgumentParser::add_argument(
                 parser_error(
                     "Destination Name: `" + destination_name + "` already exists."
                 );
-    arguments.push_back(_Argument(
-        flags, type, destination_name, *new std::function(callback),
-        help
-    ));
+    arguments.push_back(
+        _Argument(flags, type, destination_name, *new std::function(callback), help)
+    );
     return *this;
 }
 
@@ -123,10 +122,9 @@ ArgumentParser &ArgumentParser::add_argument(
                 parser_error(
                     "Destination Name: `" + destination_name + "` already exists."
                 );
-    arguments.push_back(_Argument(
-        flags, type, destination_name,
-        *new std::function(callback), help
-    ));
+    arguments.push_back(
+        _Argument(flags, type, destination_name, *new std::function(callback), help)
+    );
     return *this;
 }
 
@@ -213,6 +211,16 @@ Arguments ArgumentParser::parse_args(int argc, char *argv[])
                 flagless_arguments.erase(flagless_arguments.begin());
             }
         }
+    }
+
+    // Make sure booleans are there
+    for (unsigned int i = 0; i < arguments.size(); i++)
+    {
+        if (arguments[i].type == TYPE::BOOLEAN_ARGUMENT &&
+            output_arguments.get(arguments[i].destination_name) == nullptr)
+            output_arguments.add_argument(
+                arguments[i].destination_name, new bool(false), TYPE::BOOLEAN_ARGUMENT
+            );
     }
     return output_arguments;
 }
