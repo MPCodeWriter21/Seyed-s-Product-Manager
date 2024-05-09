@@ -14,6 +14,7 @@ Build
   feel free to change it to GCC or any other compiler if you feel like it.
 + [make](https://www.gnu.org/software/make/): If you look carefully you see that we have a `Makefile`.
   So... You know what you need.
++ `ld`: To embed the font file into the executable.
 + The ability to now how to run commands in a command-line: Self explanatory
 
 ### Run the make command
@@ -32,7 +33,7 @@ Features & Plans
 ----------------
 
 + [x] A CLI to easily interact with the application
-+ [ ] GUI (_In progress..._)
++ [x] GUI (_In progress..._)
 + [ ] TUI
 + [ ] Web UI
 + [x] Stores product data, user data and orders in a SQLite database
@@ -81,6 +82,7 @@ Options:
   -I ORDER-ID, --order-id ORDER-ID              Order ID
   -f FROM-DATE, --from-date FROM-DATE           Starting date for the financial turnover report
   -t TO-DATE, --to-date TO-DATE         Ending date for the financial turnover report
+  --gui GUI             Run the GUI application
 
 Error: Main Parser: Please enter a command!
 ```
