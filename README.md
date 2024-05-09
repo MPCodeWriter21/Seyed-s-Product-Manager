@@ -29,6 +29,9 @@ make all
 make debug
 ```
 
+> [!NOTE]
+> Make sure to change the `ARCH` in the `Makefile` based on your system's architecture.
+
 Features & Plans
 ----------------
 

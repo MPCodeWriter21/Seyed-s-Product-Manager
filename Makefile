@@ -2,6 +2,7 @@
 CC          = clang
 CXX         = clang++
 DEBUG_FLAGS = --debug
+ARCH        = x64
 
 # Directories
 SRC_DIR          = src
@@ -77,7 +78,7 @@ $(BUILD_DIR)/%.o: $(GUI_DIR)/%.cpp
 	$(CXX) $(CXXFLAGS) -c $^ -o $@
 
 $(FONT_OBJ): $(FONT_FILE)
-	ld -r -b binary -o $@ $<
+	ld -r -b binary -o $@ -A $(ARCH) $<
 
 $(OUT): $(OBJ_FILES) $(SQLITE_OBJ_FILES) $(UTILS_OBJ_FILES) $(DATABASE_OBJ_FILES) $(FONT_OBJ) $(IMGUI_OBJ_FILES) $(GUI_OBJ_FILES)
 	$(CXX) $(CXXFLAGS) $^ -o $(BUILD_DIR)/$@ $(LDFLAGS)
