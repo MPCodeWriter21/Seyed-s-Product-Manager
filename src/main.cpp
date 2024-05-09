@@ -13,33 +13,37 @@ int main(int argc, char *argv[])
 {
     ArgumentParser parser("Main Parser", "Seyed's Product Manager");
     parser.add_argument(
-        new std::string[]{}, 0, TYPE::STRING, "command", nullptr,
+        {}, TYPE::STRING, "command", nullptr,
         "Commands: add-product, get-product, list-products, list-sold-out, "
-        "edit-product, add-user, new-order, list-orders, get-order, pay-order"
+        "edit-product, add-user, new-order, list-orders, get-order, pay-order, turnover"
     );
     parser.add_argument(
-        new std::string[]{"-i", "--product-id"}, 2, TYPE::INTEGER, "product-id",
-        nullptr, "Product ID"
+        {"-i", "--product-id"}, TYPE::INTEGER, "product-id", nullptr, "Product ID"
     );
     parser.add_argument(
-        new std::string[]{"-n", "--product-name"}, 2, TYPE::STRING, "product-name",
-        nullptr, "Product name"
+        {"-n", "--product-name"}, TYPE::STRING, "product-name", nullptr, "Product name"
     );
     parser.add_argument(
-        new std::string[]{"-p", "--price"}, 2, TYPE::DOUBLE_NUMBER, "price", nullptr,
-        "Price of the Product"
+        {"-p", "--price"}, TYPE::DOUBLE_NUMBER, "price", nullptr, "Price of the Product"
     );
     parser.add_argument(
-        new std::string[]{"-a", "--available-count"}, 2, TYPE::INTEGER,
-        "available-count", nullptr, "Product ID"
+        {"-a", "--available-count"}, TYPE::INTEGER, "available-count", nullptr,
+        "Product ID"
     );
     parser.add_argument(
-        new std::string[]{"-d", "--product-description"}, 2, TYPE::STRING,
-        "description", nullptr, "Product Description"
+        {"-d", "--product-description"}, TYPE::STRING, "description", nullptr,
+        "Product Description"
     );
     parser.add_argument(
-        new std::string[]{"-I", "--order-id"}, 2, TYPE::INTEGER, "order-id", nullptr,
-        "Order ID"
+        {"-I", "--order-id"}, TYPE::INTEGER, "order-id", nullptr, "Order ID"
+    );
+    parser.add_argument(
+        {"-f", "--from-date"}, TYPE::STRING, "from-date", nullptr,
+        "Starting date for the financial turnover report"
+    );
+    parser.add_argument(
+        {"-t", "--to-date"}, TYPE::STRING, "to-date", nullptr,
+        "Ending date for the financial turnover report"
     );
     auto args = parser.parse_args(argc, argv);
 
@@ -349,6 +353,41 @@ int main(int argc, char *argv[])
         else
             std::cout << "There was a problem paying the order with id="
                       << std::to_string(*id) << std::endl;
+    }
+    else if (*command == "turnover")
+    {
+        // Show the financial turnover
+        std::string *from_date = (std::string *)args.get("from-date");
+        std::string *to_date = (std::string *)args.get("to-date");
+        std::vector<Order> list_of_orders;
+        if (from_date == nullptr && to_date == nullptr)
+            list_of_orders = orders.get_orders({"now", "-1 month"}, {}, products);
+        else if (from_date != nullptr && to_date == nullptr)
+            list_of_orders = orders.get_orders({*from_date}, {}, products);
+        else if (from_date == nullptr && to_date != nullptr)
+            list_of_orders =
+                orders.get_orders({"now", "-1 month"}, {*to_date}, products);
+        else
+            list_of_orders = orders.get_orders({*from_date}, {*to_date}, products);
+        if (list_of_orders.size() < 1)
+        {
+            std::cout << "We did not get any payments in that time frame :(\n";
+            return 0;
+        }
+        std::cout << "We got " << list_of_orders.size() << " payments!" << std::endl;
+        double total_profit = 0;
+        double total_no_discount_sales = 0;
+        for (size_t i = 0; i < list_of_orders.size(); i++)
+        {
+            total_no_discount_sales += list_of_orders[i].get_total();
+            total_profit += list_of_orders[i].get_total_after_discount();
+        }
+        std::cout << "We earned " << std::setprecision(2) << std::fixed << total_profit;
+        if (total_profit != total_no_discount_sales)
+            std::cout << " but we could have earned " << std::setprecision(2)
+                      << std::fixed << total_no_discount_sales
+                      << " if you hadn't given the customers so much discounts";
+        std::cout << "!\n";
     }
     else
         parser.parser_error(

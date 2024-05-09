@@ -86,7 +86,12 @@ class Orders : protected Database
         const std::vector<ProductOrder> &product_orders, const int &discount
     );
     Order *get_order(const unsigned int &id, Products &products);
-    const std::vector<Order> &list_orders(Products &products);
+    std::vector<Order> get_orders(
+        const std::initializer_list<std::string> &from_date,
+        const std::initializer_list<std::string> &to_date,
+        Products &products
+    );
+    std::vector<Order> list_orders(Products &products);
     void set_database_path(std::string path);
 
   protected:

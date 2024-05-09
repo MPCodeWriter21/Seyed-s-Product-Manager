@@ -18,6 +18,9 @@ class Database
     std::vector<Record> execute(
         const std::string &command, const std::initializer_list<std::string> values = {}
     );
+    std::vector<Record> execute(
+        const std::string &command, const std::vector<std::string> &values
+    );
     int create_table(
         const std::string &table_name, const std::string &content, bool exists_ok = true
     );

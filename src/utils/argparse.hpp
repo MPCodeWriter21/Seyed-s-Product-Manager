@@ -38,8 +38,7 @@ class Arguments
 
 struct _Argument
 {
-    const std::string *flags;
-    unsigned int number_of_flags;
+    const std::vector<std::string> flags;
     TYPE type;
     std::string destination_name = "";
     const std::function<void()> &callback = nullptr;
@@ -54,8 +53,14 @@ class ArgumentParser
     );
     // TODO: Add a way to make the arguments required
     ArgumentParser &add_argument(
-        const std::string flags[],
-        const unsigned int number_of_flags,
+        const std::vector<std::string> flags,
+        const TYPE &type,
+        const std::string destination_name = "",
+        const std::function<void()> &callback = nullptr,
+        const std::string help = ""
+    );
+    ArgumentParser &add_argument(
+        const std::initializer_list<std::string> flags,
         const TYPE &type,
         const std::string destination_name = "",
         const std::function<void()> &callback = nullptr,

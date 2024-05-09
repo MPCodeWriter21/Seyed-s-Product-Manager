@@ -42,7 +42,7 @@ ArgumentParser::ArgumentParser(const std::string &name, const std::string &descr
     this->name = name;
     this->description = description;
     this->add_argument(
-        new std::string[]{"--help", "-h"}, 2, TYPE::NO_INPUT, "",
+        {"--help", "-h"}, TYPE::NO_INPUT, "",
         [this]() {
             show_help();
             std::exit(0);
@@ -53,8 +53,7 @@ ArgumentParser::ArgumentParser(const std::string &name, const std::string &descr
 }
 
 ArgumentParser &ArgumentParser::add_argument(
-    const std::string flags[],
-    const unsigned int number_of_flags,
+    const std::vector<std::string> flags,
     const TYPE &type,
     const std::string destination_name,
     const std::function<void()> &callback,
@@ -73,9 +72,9 @@ ArgumentParser &ArgumentParser::add_argument(
         );
     }
     // Check if any of the flags already exist
-    for (unsigned int i = 0; i < number_of_flags; i++)
+    for (unsigned int i = 0; i < flags.size(); i++)
         for (unsigned int j = 0; j < arguments.size(); j++)
-            for (unsigned int k = 0; k < arguments[j].number_of_flags; k++)
+            for (unsigned int k = 0; k < arguments[j].flags.size(); k++)
                 if (flags[i] == arguments[j].flags[k])
                     parser_error("Flag: `" + flags[i] + "` already exists.");
     // Check if destination_name already exists
@@ -86,8 +85,47 @@ ArgumentParser &ArgumentParser::add_argument(
                     "Destination Name: `" + destination_name + "` already exists."
                 );
     arguments.push_back(_Argument(
-        flags, number_of_flags, type, destination_name, *new std::function(callback),
+        flags, type, destination_name, *new std::function(callback),
         help
+    ));
+    return *this;
+}
+
+ArgumentParser &ArgumentParser::add_argument(
+    const std::initializer_list<std::string> flags,
+    const TYPE &type,
+    const std::string destination_name,
+    const std::function<void()> &callback,
+    const std::string help
+)
+{
+    if (type == TYPE::NO_INPUT && callback == nullptr)
+    {
+        parser_error("Argument with type (NO_INPUT) must have a callback function.");
+    }
+    else if (type != TYPE::NO_INPUT && destination_name == "")
+    {
+        parser_error(
+            "You must specify `destination_name` for `" + flags.begin()[0] +
+            "` since its not of type NO_INPUT."
+        );
+    }
+    // Check if any of the flags already exist
+    for (unsigned int i = 0; i < flags.size(); i++)
+        for (unsigned int j = 0; j < arguments.size(); j++)
+            for (unsigned int k = 0; k < arguments[j].flags.size(); k++)
+                if (flags.begin()[i] == arguments[j].flags[k])
+                    parser_error("Flag: `" + flags.begin()[i] + "` already exists.");
+    // Check if destination_name already exists
+    if (destination_name != "")
+        for (unsigned int i = 0; i < arguments.size(); i++)
+            if (destination_name == arguments[i].destination_name)
+                parser_error(
+                    "Destination Name: `" + destination_name + "` already exists."
+                );
+    arguments.push_back(_Argument(
+        flags, type, destination_name,
+        *new std::function(callback), help
     ));
     return *this;
 }
@@ -99,9 +137,9 @@ Arguments ArgumentParser::parse_args(int argc, char *argv[])
     std::vector<const _Argument *> flagless_arguments;
     for (unsigned int i = 0; i < arguments.size(); i++)
     {
-        if (arguments[i].number_of_flags == 0)
+        if (arguments[i].flags.size() == 0)
             flagless_arguments.push_back(&arguments[i]);
-        for (unsigned int j = 0; j < arguments[i].number_of_flags; j++)
+        for (unsigned int j = 0; j < arguments[i].flags.size(); j++)
             flag_map[arguments[i].flags[j]] = &arguments[i];
     }
     filename = argv[0];
@@ -194,7 +232,7 @@ const std::string ArgumentParser::get_help_text() const
     // Generate the usage statement
     for (unsigned int i = 0; i < arguments.size(); i++)
     {
-        if (arguments[i].number_of_flags == 0)
+        if (arguments[i].flags.size() == 0)
         {
             positional_arguments.push_back(&arguments[i]);
             continue;
@@ -234,10 +272,10 @@ const std::string ArgumentParser::get_help_text() const
     help_text += "\nOptions:";
     for (unsigned int i = 0; i < arguments.size(); i++)
     {
-        if (arguments[i].number_of_flags == 0)
+        if (arguments[i].flags.size() == 0)
             continue;
         help_text += "\n  ";
-        for (unsigned int j = 0; j < arguments[i].number_of_flags; j++)
+        for (unsigned int j = 0; j < arguments[i].flags.size(); j++)
         {
             if (j > 0)
                 help_text += ", ";
@@ -249,7 +287,7 @@ const std::string ArgumentParser::get_help_text() const
                 help_text += " " + dest;
             }
         }
-        if (arguments[i].number_of_flags == 0)
+        if (arguments[i].flags.size() == 0)
         {
             dest = arguments[i].destination_name;
             std::transform(dest.begin(), dest.end(), dest.begin(), ::toupper);
