@@ -36,18 +36,19 @@ ProductOrder ProductOrder::from_string(const std::string &data, Products &produc
 
 std::string Order::items = "id INTEGER PRIMARY KEY AUTOINCREMENT, "
                            "product_orders TEXT NOT NULL, "
-                           "is_paid INTEGER DEFAULT 0, "
+                           "pay_date REAL DEFAULT 0, "
                            "discount INTEGER DEFAULT 0";
 
 Order::Order(
     unsigned int id,
     const std::vector<ProductOrder> &product_orders,
-    const bool &is_paid,
+    Orders &parent,
+    const double &pay_date,
     const int &discount,
     const std::function<void(Order &)> &on_change_callback
 )
     : DatabaseObject(items), on_change_callback(on_change_callback), id(id),
-      product_orders(product_orders), _is_paid(is_paid)
+      product_orders(product_orders), pay_date(pay_date), parent(parent)
 {
     if (discount < 0)
         error("We cannot have negative discounts.");
@@ -111,14 +112,35 @@ void Order::set_discount(const int &discount)
     this->discount = discount;
 }
 
-const bool &Order::is_paid() const
+const double &Order::get_pay_julian_day() const
 {
-    return _is_paid;
+    return pay_date;
+}
+
+std::string Order::get_pay_date() const
+{
+    std::vector<Record> data = parent.execute(
+        "SELECT date(pay_date, 'localtime') FROM orders WHERE id=?", {std::to_string(id)}
+    );
+    return data[0][0];
+}
+
+std::string Order::get_pay_time() const
+{
+    std::vector<Record> data = parent.execute(
+        "SELECT time(pay_date, 'localtime') FROM orders WHERE id=?", {std::to_string(id)}
+    );
+    return data[0][0];
+}
+
+bool Order::is_paid() const
+{
+    return pay_date;
 }
 
 bool Order::pay()
 {
-    if (_is_paid)
+    if (pay_date)
         return false;
     for (size_t i = 0; i < product_orders.size(); i++)
     {
@@ -131,7 +153,8 @@ bool Order::pay()
             product_orders[i].product.get_available_count() - product_orders[i].count
         );
     }
-    _is_paid = true;
+    std::vector<Record> data = parent.execute("SELECT julianday('now')");
+    pay_date = std::stod(data[0][0]);
     call_callbacks();
     return true;
 }
@@ -150,7 +173,11 @@ void Order::show_info() const
     if (get_total() != get_total_after_discount())
         std::cout << "Total with " << std::setw(2) << discount
                   << "% discount: " << get_total_after_discount() << std::endl;
-    std::cout << "Is Paid                : " << (_is_paid ? "Yes" : "No") << std::endl;
+    if (pay_date)
+        std::cout << "Paid in `" << get_pay_date() << "` at `" << get_pay_time() << "`."
+                  << std::endl;
+    else
+        std::cout << "Is Paid                : No" << std::endl;
     std::cout << "No. of Orders          : " << get_count() << std::endl;
 }
 
@@ -226,11 +253,13 @@ std::string Order::to_string() const
 Order Order::from_string(
     const unsigned int id,
     const std::string &data,
-    const bool &is_paid,
-    Products &products
+    Orders &parent,
+    const double &pay_date,
+    Products &products,
+    const int &discount
 )
 {
-    return Order(id, Order::from_string(data, products), is_paid);
+    return Order(id, Order::from_string(data, products), parent, pay_date, discount);
 }
 
 // Orders
@@ -279,7 +308,7 @@ Order *Orders::get_order(const unsigned int &id, Products &products)
         Record &order_info = records[0];
         return new Order(
             std::stoi(order_info[0]), Order::from_string(order_info[1], products),
-            std::stoi(order_info[2]), std::stoi(order_info[3]),
+            *this, std::stod(order_info[2]), std::stoi(order_info[3]),
             [this](Order &p) { this->save_changed_order(p); }
         );
     }
@@ -295,7 +324,7 @@ const std::vector<Order> &Orders::list_orders(Products &products)
         const Record &order_info = records[i];
         orders->push_back(Order(
             std::stoi(order_info[0]), Order::from_string(order_info[1], products),
-            std::stoi(order_info[2]), std::stoi(order_info[3]),
+            *this, std::stod(order_info[2]), std::stoi(order_info[3]),
             [this](Order &p) { this->save_changed_order(p); }
         ));
     }
@@ -310,8 +339,8 @@ void Orders::set_database_path(std::string path)
 void Orders::save_changed_order(Order &order)
 {
     execute(
-        "UPDATE orders SET product_orders=?, is_paid=?, discount=? WHERE id=?",
-        {order.to_string(), std::to_string((int)order.is_paid()),
+        "UPDATE orders SET product_orders=?, pay_date=?, discount=? WHERE id=?",
+        {order.to_string(), std::to_string(order.get_pay_julian_day()),
          std::to_string(order.get_discount()), std::to_string(order.get_id())}
     );
 }

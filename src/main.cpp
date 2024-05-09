@@ -101,6 +101,7 @@ int main(int argc, char *argv[])
         }
         std::cout << "Adding `" << *name << "`..." << std::endl;
         products.add_product(*name, *price, *available_count, *description);
+        delete description;
     }
     else if (*command == "get-product")
     {

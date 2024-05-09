@@ -17,6 +17,8 @@ class ProductOrder
     unsigned int count;
 };
 
+class Orders;
+
 class Order : public DatabaseObject
 {
   public:
@@ -25,7 +27,8 @@ class Order : public DatabaseObject
     Order(
         unsigned int id,
         const std::vector<ProductOrder> &product_orders,
-        const bool &is_paid = false,
+        Orders &parent,
+        const double &pay_date = 0,
         const int &discount = 0,
         const std::function<void(Order &)> &on_change_callback = nullptr
     );
@@ -38,9 +41,12 @@ class Order : public DatabaseObject
     void add_product_order(const ProductOrder &product_order);
     void remove_product_order(int index);
     void set_product_order(int index, const ProductOrder &product_order);
-    const int& get_discount() const;
+    const int &get_discount() const;
     void set_discount(const int &discount);
-    const bool &is_paid() const;
+    const double &get_pay_julian_day() const;
+    std::string get_pay_date() const;
+    std::string get_pay_time() const;
+    bool is_paid() const;
     bool pay();
     void show_info() const;
     static std::string to_string(std::vector<ProductOrder> product_orders);
@@ -51,8 +57,10 @@ class Order : public DatabaseObject
     static Order from_string(
         const unsigned int id,
         const std::string &data,
-        const bool &is_paid,
-        Products &products
+        Orders &parent,
+        const double &pay_date,
+        Products &products,
+        const int &discount
     );
 
     std::function<void(Order &)> on_change_callback;
@@ -62,16 +70,21 @@ class Order : public DatabaseObject
 
     unsigned int id;
     std::vector<ProductOrder> product_orders;
-    bool _is_paid;
+    double pay_date;
     int discount;
+    Orders &parent;
 };
 
 class Orders : protected Database
 {
+    friend class Order;
+
   public:
     Orders(std::string path);
     Orders(Orders &products);
-    void add_order(const std::vector<ProductOrder> &product_orders, const int &discount);
+    void add_order(
+        const std::vector<ProductOrder> &product_orders, const int &discount
+    );
     Order *get_order(const unsigned int &id, Products &products);
     const std::vector<Order> &list_orders(Products &products);
     void set_database_path(std::string path);
