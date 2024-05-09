@@ -361,14 +361,16 @@ int main(int argc, char *argv[])
         std::string *to_date = (std::string *)args.get("to-date");
         std::vector<Order> list_of_orders;
         if (from_date == nullptr && to_date == nullptr)
-            list_of_orders = orders.get_orders({"now", "-1 month"}, {}, products);
-        else if (from_date != nullptr && to_date == nullptr)
-            list_of_orders = orders.get_orders({*from_date}, {}, products);
-        else if (from_date == nullptr && to_date != nullptr)
             list_of_orders =
-                orders.get_orders({"now", "-1 month"}, {*to_date}, products);
+                orders.get_orders({"now", "-1 month", "localtime"}, {}, products);
+        else if (from_date != nullptr && to_date == nullptr)
+            list_of_orders = orders.get_orders({*from_date, "localtime"}, {}, products);
+        else if (from_date == nullptr && to_date != nullptr)
+            list_of_orders = orders.get_orders({}, {*to_date, "localtime"}, products);
         else
-            list_of_orders = orders.get_orders({*from_date}, {*to_date}, products);
+            list_of_orders = orders.get_orders(
+                {*from_date, "localtime"}, {*to_date, "localtime"}, products
+            );
         if (list_of_orders.size() < 1)
         {
             std::cout << "We did not get any payments in that time frame :(\n";
