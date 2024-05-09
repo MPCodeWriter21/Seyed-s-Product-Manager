@@ -7,10 +7,12 @@
 #include "gui/imgui/imgui_impl_dx9.h"
 #include "gui/imgui/imgui_impl_win32.h"
 #include <d3d9.h>
+#include <filesystem>
+#include <iostream>
 #include <string>
 #include <tchar.h>
 
-int run_gui(Users &database)
+int run_gui(std::filesystem::path executable_path, Users &database)
 {
     Users users((Users &)database);
     Products products((Products &)database);
@@ -67,11 +69,10 @@ int run_gui(Users &database)
     ImGui_ImplDX9_Init(g_pd3dDevice);
 
     // Load Fonts
-    char *binary_start = font_file_start;
-    char *binary_end = font_file_end;
     io.Fonts->AddFontDefault();
-    ImFont *mainfont =
-        io.Fonts->AddFontFromMemoryTTF(binary_start, binary_end - binary_start, 30);
+    std::string font_path =
+        (executable_path.parent_path() / "misc" / "Lalezar.Regular.ttf").string();
+    ImFont *mainfont = io.Fonts->AddFontFromFileTTF(font_path.c_str(), 30);
     IM_ASSERT(mainfont != NULL);
     // Our state
     // ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);

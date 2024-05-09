@@ -67,7 +67,7 @@ int main(int argc, char *argv[])
     Orders orders((Orders &)users);
 
     if (*(bool *)args.get("gui"))
-        return run_gui(users);
+        return run_gui(argv[0], users);
 
     // Get the command from the parser and check what options is chosen by the user
     std::string *command = (std::string *)args.get("command");
