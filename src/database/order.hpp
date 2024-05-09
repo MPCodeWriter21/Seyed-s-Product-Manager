@@ -26,16 +26,20 @@ class Order : public DatabaseObject
         unsigned int id,
         const std::vector<ProductOrder> &product_orders,
         const bool &is_paid = false,
+        const int &discount = 0,
         const std::function<void(Order &)> &on_change_callback = nullptr
     );
 
     const unsigned int &get_id() const;
     double get_total() const;
+    double get_total_after_discount() const;
     const std::vector<ProductOrder> &get_product_orders() const;
     unsigned int get_count() const;
     void add_product_order(const ProductOrder &product_order);
     void remove_product_order(int index);
     void set_product_order(int index, const ProductOrder &product_order);
+    const int& get_discount() const;
+    void set_discount(const int &discount);
     const bool &is_paid() const;
     bool pay();
     void show_info() const;
@@ -59,6 +63,7 @@ class Order : public DatabaseObject
     unsigned int id;
     std::vector<ProductOrder> product_orders;
     bool _is_paid;
+    int discount;
 };
 
 class Orders : protected Database
@@ -66,7 +71,7 @@ class Orders : protected Database
   public:
     Orders(std::string path);
     Orders(Orders &products);
-    void add_order(const std::vector<ProductOrder> &product_orders);
+    void add_order(const std::vector<ProductOrder> &product_orders, const int &discount);
     Order *get_order(const unsigned int &id, Products &products);
     const std::vector<Order> &list_orders(Products &products);
     void set_database_path(std::string path);

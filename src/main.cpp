@@ -246,8 +246,22 @@ int main(int argc, char *argv[])
             std::cout << "No product means no order!\n";
             return 0;
         }
+        int discount = 0;
+        std::cout << "Any discounts? If not just enter 0: ";
+        while (true)
+        {
+            std::cin >> discount;
+            if (discount < 0 || discount > 100)
+            {
+                std::cout << "Sorry but it's not possible to have a " << discount
+                          << "% discount!" << std::endl
+                          << "Maybe try again? Discount(0-100): ";
+            }
+            else
+                break;
+        }
         std::cout << "Creating a new order..." << std::endl;
-        orders.add_order(product_orders);
+        orders.add_order(product_orders, discount);
     }
     else if (*command == "list-orders")
     {
