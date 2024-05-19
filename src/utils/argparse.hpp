@@ -49,7 +49,9 @@ class ArgumentParser
 {
   public:
     ArgumentParser(
-        const std::string &name = "Main parser", const std::string &description = ""
+        const std::string &name = "Main parser",
+        const std::string &description = "",
+        const bool &skip_help = false
     );
     // TODO: Add a way to make the arguments required
     ArgumentParser &add_argument(

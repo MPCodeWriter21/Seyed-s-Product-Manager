@@ -37,19 +37,21 @@ void *Arguments::get(const std::string &name) const
 
 // ArgumentParser
 
-ArgumentParser::ArgumentParser(const std::string &name, const std::string &description)
+ArgumentParser::ArgumentParser(
+    const std::string &name, const std::string &description, const bool &skip_help
+)
 {
     this->name = name;
     this->description = description;
-    this->add_argument(
-        {"--help", "-h"}, TYPE::NO_INPUT, "",
-        [this]() {
-            show_help();
-            std::exit(0);
-        },
-        "Shows this help text."
-
-    );
+    if (!skip_help)
+        this->add_argument(
+            {"--help", "-h"}, TYPE::NO_INPUT, "",
+            [this]() {
+                show_help();
+                std::exit(0);
+            },
+            "Shows this help text."
+        );
 }
 
 ArgumentParser &ArgumentParser::add_argument(
