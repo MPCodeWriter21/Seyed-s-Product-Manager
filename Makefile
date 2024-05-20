@@ -3,6 +3,7 @@ CC          = clang
 CXX         = clang++
 DEBUG_FLAGS = --debug
 ARCH        = x64
+BUILD_GUI  ?= yes
 
 # Directories
 SRC_DIR          = src
@@ -50,6 +51,10 @@ CFLAGS   = -I$(SRC_DIR)
 CXXFLAGS = -I$(SRC_DIR) -Wall -Wextra --std=c++20
 LDFLAGS  = -luser32 -ld3d9
 
+ifeq ($(BUILD_GUI),yes)
+	CXXFLAGS := $(CXXFLAGS) -D GUI
+endif
+
 .PHONY: all clean debug
 
 all: $(BUILD_DIR) $(BUILD_MISC_FILES) $(OUT) #gui.o main
@@ -81,8 +86,13 @@ $(BUILD_DIR)/%.o: $(GUI_DIR)/%.cpp
 $(BUILD_MISC_FILES): $(MISC_FILES)
 	cp $(MISC_DIR) $(BUILD_DIR)/$(MISC_DIR) -r
 
+ifeq ($(BUILD_GUI),yes)
 $(OUT): $(OBJ_FILES) $(SQLITE_OBJ_FILES) $(UTILS_OBJ_FILES) $(DATABASE_OBJ_FILES) $(IMGUI_OBJ_FILES) $(GUI_OBJ_FILES)
 	$(CXX) $(CXXFLAGS) $^ -o $(BUILD_DIR)/$@ $(LDFLAGS)
+else
+$(OUT): $(OBJ_FILES) $(SQLITE_OBJ_FILES) $(UTILS_OBJ_FILES) $(DATABASE_OBJ_FILES)
+	$(CXX) $(CXXFLAGS) $^ -o $(BUILD_DIR)/$@ $(LDFLAGS)
+endif
 
 debug: CXXFLAGS += $(DEBUG_FLAGS)
 debug: $(DEBUG_BUILD_DIR) $(DEBUG_BUILD_MISC_FILES) $(DEBUG_OUT)
@@ -108,9 +118,13 @@ $(DEBUG_BUILD_DIR)/%.o: $(GUI_DIR)/%.cpp
 $(DEBUG_BUILD_MISC_FILES): $(MISC_FILES)
 	cp $(MISC_DIR) $(DEBUG_BUILD_DIR)/$(MISC_DIR) -r
 
+ifeq ($(BUILD_GUI),yes)
 $(DEBUG_OUT): $(DEBUG_OBJ_FILES) $(DEBUG_SQLITE_OBJ_FILES) $(DEBUG_UTILS_OBJ_FILES) $(DEBUG_DATABASE_OBJ_FILES) $(DEBUG_IMGUI_OBJ_FILES) $(DEBUG_GUI_OBJ_FILES)
 	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS)
-
+else
+$(DEBUG_OUT): $(DEBUG_OBJ_FILES) $(DEBUG_SQLITE_OBJ_FILES) $(DEBUG_UTILS_OBJ_FILES) $(DEBUG_DATABASE_OBJ_FILES)
+	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS)
+endif
 
 clean:
 	rm -rf $(DEBUG_BUILD_DIR)

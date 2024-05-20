@@ -26,6 +26,9 @@ make all
 
 # Build in debug mode
 make debug
+
+# Build with no GUI
+make all BUILD_GUI=no
 ```
 
 > [!NOTE]
@@ -40,7 +43,7 @@ Features & Plans
 + [ ] Web UI
 + [x] Stores product data, user data and orders in a SQLite database
 + [ ] A useful and feature heavy user management solution and hashing passwords
-+ [x] A proper codebase, easy to build
++ [x] A proper codebase, easy to build. Please make sure your environment is set up properly!
 + [ ] Colorful messages
 
 Dependencies

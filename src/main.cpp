@@ -1,13 +1,16 @@
 #include "database/order.hpp"
 #include "database/product.hpp"
 #include "database/user.hpp"
-#include "gui/gui.hpp"
 #include "utils/argparse.hpp"
 #include "utils/utils.hpp"
 #include <iomanip>
 #include <iostream>
 #include <string>
 #include <vector>
+
+#ifdef GUI
+#include "gui/gui.hpp"
+#endif
 
 int main(int argc, char *argv[])
 {
@@ -45,9 +48,11 @@ int main(int argc, char *argv[])
         {"-t", "--to-date"}, TYPE::STRING, "to-date", nullptr,
         "Ending date for the financial turnover report"
     );
+#ifdef GUI
     parser.add_argument(
         {"--gui"}, TYPE::BOOLEAN_ARGUMENT, "gui", nullptr, "Run the GUI application"
     );
+#endif
     auto args = parser.parse_args(argc, argv);
 
     enable_comma_locale();
@@ -66,8 +71,10 @@ int main(int argc, char *argv[])
     Products products((Products &)users);
     Orders orders((Orders &)users);
 
+#ifdef GUI
     if (*(bool *)args.get("gui"))
         return run_gui(argv[0], users);
+#endif
 
     // Get the command from the parser and check what options is chosen by the user
     std::string *command = (std::string *)args.get("command");
