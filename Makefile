@@ -2,7 +2,7 @@
 CC          = clang
 CXX         = clang++
 DEBUG_FLAGS = --debug
-ARCH        = x64
+ARCH       ?=
 BUILD_GUI  ?= yes
 
 # Directories
@@ -49,10 +49,17 @@ DEBUG_OUT = $(DEBUG_BUILD_DIR)/$(OUT)
 # Flags
 CFLAGS   = -I$(SRC_DIR)
 CXXFLAGS = -I$(SRC_DIR) -Wall -Wextra --std=c++20
-LDFLAGS  = -luser32 -ld3d9
+LDFLAGS  =
 
 ifeq ($(BUILD_GUI),yes)
+	LDFLAGS  := -luser32 -ld3d9
 	CXXFLAGS := $(CXXFLAGS) -D GUI
+endif
+
+ifeq ($(ARCH), "")
+	CXXFLAGS := $(CXXFLAGS)
+else
+	CXXFLAGS := $(CXXFLAGS) -march=$(ARCH)
 endif
 
 .PHONY: all clean debug
