@@ -14,7 +14,7 @@ Build
   feel free to change it to GCC or any other compiler if you feel like it.
 + [make](https://www.gnu.org/software/make/): If you look carefully you see that we have a `Makefile`.
   So... You know what you need.
-+ The ability to now how to run commands in a command-line: Self explanatory
++ The ability to know how to run commands in a command-line: Self explanatory
 
 ### Run the make command
 
