@@ -3,7 +3,6 @@
 #include "database/user.hpp"
 #include "utils/argparse.hpp"
 #include "utils/utils.hpp"
-#include <cctype>
 #include <iomanip>
 #include <iostream>
 #include <string>
