@@ -28,6 +28,7 @@ class Order : public DatabaseObject
         unsigned int id,
         const std::vector<ProductOrder> &product_orders,
         Orders &parent,
+        const std::string &phone_number,
         const double &pay_date = 0,
         const int &discount = 0,
         const std::function<void(Order &)> &on_change_callback = nullptr
@@ -41,6 +42,8 @@ class Order : public DatabaseObject
     void add_product_order(const ProductOrder &product_order);
     void remove_product_order(int index);
     void set_product_order(int index, const ProductOrder &product_order);
+    const std::string &get_phone_number() const;
+    void set_phone_number(const std::string &phone_number);
     const int &get_discount() const;
     void set_discount(const int &discount);
     const double &get_pay_julian_day() const;
@@ -58,6 +61,7 @@ class Order : public DatabaseObject
         const unsigned int id,
         const std::string &data,
         Orders &parent,
+        const std::string &phone_number,
         const double &pay_date,
         Products &products,
         const int &discount
@@ -70,6 +74,7 @@ class Order : public DatabaseObject
 
     unsigned int id;
     std::vector<ProductOrder> product_orders;
+    std::string phone_number;
     double pay_date;
     int discount;
     Orders &parent;
@@ -83,7 +88,9 @@ class Orders : protected Database
     Orders(std::string path);
     Orders(Orders &products);
     void add_order(
-        const std::vector<ProductOrder> &product_orders, const int &discount
+        const std::vector<ProductOrder> &product_orders,
+        const std::string phone_number,
+        const int &discount
     );
     Order *get_order(const unsigned int &id, Products &products);
     std::vector<Order> get_orders(

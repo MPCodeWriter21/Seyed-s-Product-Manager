@@ -3,6 +3,7 @@
 #include "database/user.hpp"
 #include "utils/argparse.hpp"
 #include "utils/utils.hpp"
+#include <cctype>
 #include <iomanip>
 #include <iostream>
 #include <string>
@@ -279,8 +280,25 @@ int main(int argc, char *argv[])
             else
                 break;
         }
+        std::string phone_number, check;
+        std::cout << "Please enter the customer's phone number(e.g. +989112223333): ";
+        while (true)
+        {
+            std::cin >> phone_number;
+            if (validate_phone_number(phone_number))
+                break;
+            else
+            {
+                std::cout << "Sorry but I don't recognize this phone number format...\n"
+                          << "Are you sure that's correct?(Y/n): ";
+                std::cin >> check;
+                if (check == "y" || check == "Y")
+                    break;
+                std::cout << "Please enter a valid phone number(e.g. +989445556666): ";
+            }
+        }
         std::cout << "Creating a new order..." << std::endl;
-        orders.add_order(product_orders, discount);
+        orders.add_order(product_orders, phone_number, discount);
     }
     else if (*command == "list-orders")
     {

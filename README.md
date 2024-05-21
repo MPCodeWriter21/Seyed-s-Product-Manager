@@ -12,6 +12,7 @@ Build
 
 + [LLVM](https://clang.llvm.org/): We use clang to compile the project by default but
   feel free to change it to GCC or any other compiler if you feel like it.
+  BTW the project is built with C++ standard 20.
 + [make](https://www.gnu.org/software/make/): If you look carefully you see that we have a `Makefile`.
   So... You know what you need.
 + The ability to know how to run commands in a command-line: Self explanatory
@@ -195,3 +196,8 @@ License
 
 The [license](./LICENSE) is MIT and you can pretty much do what you want with the code and don't
 bother me. Thanks!
+
+References
+----------
+
++ [E.164 standard](https://en.wikipedia.org/wiki/E.164)

@@ -17,3 +17,5 @@ class comma_numpunct : public std::numpunct<char>
 };
 
 void enable_comma_locale();
+
+bool validate_phone_number(const std::string &phone_number);
