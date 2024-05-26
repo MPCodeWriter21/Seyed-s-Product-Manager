@@ -305,7 +305,7 @@ int run_gui(std::filesystem::path executable_path, Users &database)
                     "Name", name_, sizeof(passput), ImGuiInputTextFlags_EnterReturnsTrue
                 );
                 ImGui::Separator();
-                double price = ImGui::InputText(
+                ImGui::InputText(
                     "Price", price_, sizeof(passput),
                     ImGuiInputTextFlags_EnterReturnsTrue
                 );
