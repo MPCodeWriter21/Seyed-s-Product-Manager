@@ -1,19 +1,19 @@
+#include "gui/gui.hpp"
 #include "database/database.hpp"
 #include "database/order.hpp"
 #include "database/product.hpp"
 #include "database/user.hpp"
-#include "gui/gui.hpp"
 #include "gui/imgui/imgui.h"
 #include "gui/imgui/imgui_impl_dx9.h"
 #include "gui/imgui/imgui_impl_win32.h"
+#include "utils/argparse.hpp"
 #include <d3d9.h>
 #include <filesystem>
 #include <iostream>
 #include <string>
 #include <tchar.h>
-#include "utils/argparse.hpp"
-void AddProduct ( char* id_, char* name_ ,  char* price_ );//,  char descript_);
-void ShowProducts (Products &);
+void AddProduct(char *id_, char *name_, char *price_ , Products &products); //,  char descript_);
+void ShowProducts(Products &);
 void show_info_gui_order(Order order);
 void show_info_gui_product(Product product);
 int run_gui(std::filesystem::path executable_path, Users &database)
@@ -83,19 +83,19 @@ int run_gui(std::filesystem::path executable_path, Users &database)
     ImVec4 clear_color = ImVec4(40, 40, 40, 50);
     // ImVec4 clear_color = ImVec4(255, 255, 255, 200);
 
-// Main loop
+    // Main loop
 
     // Buttons
     bool done = false;
     bool add_product_button = false;
-    //int price = 0;
+    // int price = 0;
     bool new_order_button = false;
     bool orders_button = false;
     bool dokme_Gardesh_mali = false;
     bool products_button = false;
     bool theme_button = false;
     bool dark_theme_button = true;
-    // Login Variables 
+    // Login Variables
     bool logged = false;
     static char passput[128];
     bool wrong_pass = false;
@@ -187,46 +187,48 @@ int run_gui(std::filesystem::path executable_path, Users &database)
         // ImGui :: SetWindowSize ( ImGui :: GetMainViewport () -> Size ) ;
 
         ImGui::PushFont(mainfont);
-        // ImGui::SetNextWindowPos(ImVec2(600, 250));
-        // ImGui::SetNextWindowSize(ImVec2(200, 200));
-        // if (login_pass == false)
-        // {
-        //     if (ImGui::Begin(
-        //             "LOGIN", NULL,
-        //             ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize |
-        //                 ImGuiWindowFlags_NoMove
-        //         ))
-        //     {
+        ImGui::SetNextWindowPos(ImVec2(600, 250));
+        ImGui::SetNextWindowSize(ImVec2(200, 200));
+        if (login_pass == false)
+        {
+            if (ImGui::Begin(
+                    "LOGIN", NULL,
+                    ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize |
+                        ImGuiWindowFlags_NoMove
+                ))
+            {
 
-        //         ImGui::Text("Enter Your Password");
-        //         ImGui::InputText(
-        //             "##", passput, sizeof(passput),
-        //             ImGuiInputTextFlags_Password | ImGuiInputTextFlags_EnterReturnsTrue
-        //         );
-        //         if (wrong_pass == true)
-        //         {
-        //             ImGui::Text("Wrong Password");
-        //         }
-        //         if (ImGui::Button("login"))
-        //         {
-        //             if (users.get_user(1)->check_password(Password::from_string(passput)
-        //                 ))
-        //             {
-        //                 logged = true;
-        //             }
-        //             else
-        //             {
-        //                 wrong_pass = true;
-        //             }
-        //         }
-        //     }
-        //     ImGui::End();
-        // }
-        logged = true ;
+                ImGui::Text("Enter Your Password");
+                ImGui::InputText(
+                    "##", passput, sizeof(passput),
+                    ImGuiInputTextFlags_Password |
+                    ImGuiInputTextFlags_EnterReturnsTrue
+                );
+                if (wrong_pass == true)
+                {
+                    ImGui::Text("Wrong Password");
+                }
+                if (ImGui::Button("login"))
+                {
+                    if
+                    (users.get_user(1)->check_password(Password::from_string(passput)
+                        ))
+                    {
+                        logged = true;
+                    }
+                    else
+                    {
+                        wrong_pass = true;
+                    }
+                }
+            }
+            ImGui::End();
+        }
+        //logged = true;
         ImGui::SetCursorPos(ImVec2(0, 0));
         ImGui::SetNextWindowSize(ImVec2(600, 400));
         ImGui::SetNextWindowPos(ImVec2(400, 100));
-// Main Page
+        // Main Page
         if (logged)
         {
             login_pass = true;
@@ -280,7 +282,7 @@ int run_gui(std::filesystem::path executable_path, Users &database)
                 ImGui::End();
             }
         }
-// New Product Window
+        // New Product Window
         ImGui::SetNextWindowSize(ImVec2(300, 210));
         if (add_product_button)
         {
@@ -289,30 +291,31 @@ int run_gui(std::filesystem::path executable_path, Users &database)
                     ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize
                 ))
             {
-                //ImGui::SliderInt("Price", &price, 0, 100000);
+                // ImGui::SliderInt("Price", &price, 0, 100000);
                 ImGui::InputText(
-                    "ID", id_, sizeof(passput),
-                    ImGuiInputTextFlags_EnterReturnsTrue);
+                    "ID", id_, sizeof(passput), ImGuiInputTextFlags_EnterReturnsTrue
+                );
                 ImGui::Separator();
                 ImGui::InputText(
-                    "Name", name_, sizeof(passput),
-                    ImGuiInputTextFlags_EnterReturnsTrue);
+                    "Name", name_, sizeof(passput), ImGuiInputTextFlags_EnterReturnsTrue
+                );
                 ImGui::Separator();
                 double price = ImGui::InputText(
                     "Price", price_, sizeof(passput),
-                    ImGuiInputTextFlags_EnterReturnsTrue);
+                    ImGuiInputTextFlags_EnterReturnsTrue
+                );
                 /*std::string descript_ = ImGui::InputText(
                     "Descript", descript_, sizeof(passput),
                     ImGuiInputTextFlags_EnterReturnsTrue);*/
-                if ( ImGui::Button("Save"))
+                if (ImGui::Button("Save"))
                 {
-                    AddProduct( id_ , name_ , price_ );//, descript_ );
-                    add_product_button = false ;
+                    //AddProduct(id_, name_, price_ , &products); //, descript_ );
+                    add_product_button = false;
                 }
             }
             ImGui::End();
         }
-// New Order Window
+        // New Order Window
         ImGui::SetNextWindowSize(ImVec2(300, 400));
         if (new_order_button)
         {
@@ -324,7 +327,7 @@ int run_gui(std::filesystem::path executable_path, Users &database)
             }
             ImGui::End();
         }
-// Orders Window
+        // Orders Window
         ImGui::SetNextWindowSize(ImVec2(400, 400));
         if (orders_button)
         {
@@ -334,17 +337,17 @@ int run_gui(std::filesystem::path executable_path, Users &database)
                 ))
             {
                 ImGui::BeginTable("", 5, ImGuiTableFlags_RowBg);
-                    const std::vector<Order> &list_of_orders = orders.list_orders(products);
-                    for (unsigned int i = 0; i < list_of_orders.size(); i++)
-                    {
-                        show_info_gui_order(list_of_orders[i]);
-                        std::cout << std::endl;
-                    }
+                const std::vector<Order> &list_of_orders = orders.list_orders(products);
+                for (unsigned int i = 0; i < list_of_orders.size(); i++)
+                {
+                    show_info_gui_order(list_of_orders[i]);
+                    std::cout << std::endl;
+                }
                 ImGui::EndTable();
             }
             ImGui::End();
         }
-// Gardesh mali panjare
+        // Gardesh mali panjare
         ImGui::SetNextWindowSize(ImVec2(100, 500));
         if (dokme_Gardesh_mali)
         {
@@ -356,7 +359,7 @@ int run_gui(std::filesystem::path executable_path, Users &database)
             }
             ImGui::End();
         }
-// Products Window
+        // Products Window
         ImGui::SetNextWindowSize(ImVec2(600, 800));
         if (products_button)
         {
@@ -365,11 +368,11 @@ int run_gui(std::filesystem::path executable_path, Users &database)
                     ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize
                 ))
             {
-                ShowProducts (products);
+                ShowProducts(products);
             }
             ImGui::End();
         }
-// Themes
+        // Themes
         ImGui::SetNextWindowSize(ImVec2(150, 110));
         if (theme_button)
         {
@@ -378,7 +381,7 @@ int run_gui(std::filesystem::path executable_path, Users &database)
                     ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize
                 ))
             {
-                if ( dark_theme_button )
+                if (dark_theme_button)
                 {
                     if (ImGui::Button("Light", ImVec2(130, 50)))
                     {
@@ -394,7 +397,6 @@ int run_gui(std::filesystem::path executable_path, Users &database)
                         dark_theme_button = true;
                     }
                 }
-
             }
             ImGui::End();
         }
@@ -517,64 +519,85 @@ LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
     }
     return ::DefWindowProcW(hWnd, msg, wParam, lParam);
 }
-void AddProduct (char* id_,char* name_ , char* price_ )//, char descript_ ) 
+
+void AddProduct(char *id_, char *name_, char *price_ , Products &products ) //, char descript_ )
 {
-        // Checks to see if valid arguments were supplied to the program
-        if (id_ != NULL)
-        {
-            ImGui::Text("ID is determined for the product automatically.");
-        }
-        if (name_ == NULL)
-        {
-            ImGui::Text("You need to specify a product-name to add a product.");
-        }
-        if (price_ == NULL)
-        {
-            ImGui::Text("You need to specify a price for the product.");
-        }
-        // if (available_count == nullptr)
-        // {
-        //     ImGui::Text(
-        //         "How many products do we have available? Please tell me."
-        //     );
-        // }
-        // if (description_ == nullptr)
-        // {
-        //     description_ = new std::string("");
-        // }
-        
-        // std::cout << "Adding `" << *name << "`..." << std::endl;
-        // products.add_product(*name, *price, *available_count, *description);
-        // delete description;
+    // Checks to see if valid arguments were supplied to the program
+    // if (id_ != NULL)
+    // {
+    //     ImGui::Text("ID is determined for the product automatically.");
+    // }
+    // if (name_ == NULL)
+    // {
+    //     ImGui::Text("You need to specify a product-name to add a product.");
+    // }
+    // if (price_ == NULL)
+    // {
+    //     ImGui::Text("You need to specify a price for the product.");
+    // }
+    // else 
+    // {
+    //     products.add_product(*name_, *price_, *available_count, *description);
+    // }
+    // if (available_count == nullptr)
+    // {
+    //     ImGui::Text(
+    //         "How many products do we have available? Please tell me."
+    //     );
+    // }
+    // if (description_ == nullptr)
+    // {
+    //     description_ = new std::string("");
+    // }
+
+    // std::cout << "Adding `" << *name << "`..." << std::endl;
+    // products.add_product(*name, *price, *available_count, *description);
+    // delete description;
 }
 
-void ShowProducts (Products &products)
+void ShowProducts(Products &products)
 {
-        const std::vector<Product> &list_of_products = products.list_products();
-        for (unsigned int i = 0; i < list_of_products.size(); i++)
-        {
-            show_info_gui_product(list_of_products[i]);
-        }
+    const std::vector<Product> &list_of_products = products.list_products();
+    for (unsigned int i = 0; i < list_of_products.size(); i++)
+    {
+        show_info_gui_product(list_of_products[i]);
+    }
 }
+
 void show_info_gui_product(Product product)
 {
-	ImGui::Text( ("Product ID               : " + std::to_string(product.get_id())).c_str());
-	ImGui::Text( ("Name                     : " + product.get_name()).c_str());
-	ImGui::Text( ("Price                    : " + std::to_string(product.get_price())).c_str());
-	ImGui::Text( ("No. of Available Products: " + std::to_string(product.get_available_count())).c_str());
+    ImGui::Text(
+        ("Product ID               : " + std::to_string(product.get_id())).c_str()
+    );
+    ImGui::Text(("Name                     : " + product.get_name()).c_str());
+    ImGui::Text(
+        ("Price                    : " + std::to_string(product.get_price())).c_str()
+    );
+    ImGui::Text(("No. of Available Products: " +
+                 std::to_string(product.get_available_count()))
+                    .c_str());
     if (product.get_description() != "")
-        ImGui::Text( ("Product Descriptions     : " + product.get_description()).c_str());
+        ImGui::Text(("Product Descriptions     : " + product.get_description()).c_str()
+        );
 }
 
 void show_info_gui_order(Order order)
 {
     ImGui::Text(("Order ID               : " + std::to_string(order.get_id())).c_str());
-    ImGui::Text(("Total price            : " + std::to_string(order.get_total())).c_str());
+    ImGui::Text(
+        ("Total price            : " + std::to_string(order.get_total())).c_str()
+    );
     if (order.get_total() != order.get_total_after_discount())
-        ImGui::Text(("Total with " + std::to_string(order.get_discount()) + "% discount: " + std::to_string(order.get_total_after_discount())).c_str());
+        ImGui::Text(("Total with " + std::to_string(order.get_discount()) +
+                     "% discount: " + std::to_string(order.get_total_after_discount()))
+                        .c_str());
     if (order.is_paid())
-        ImGui::Text(("Paid in `" + order.get_pay_date() + "` at `" + order.get_pay_time() + "`.").c_str());
+        ImGui::Text(("Paid in `" + order.get_pay_date() + "` at `" +
+                     order.get_pay_time() + "`.")
+                        .c_str());
     else
         ImGui::Text("Is Paid                : No");
-        ImGui::Text(("No. of Orders          : " + std::to_string(order.get_count())).c_str());
+    ImGui::Text(
+        ("No. of Orders          : " + std::to_string(order.get_count())).c_str()
+    );
 }
