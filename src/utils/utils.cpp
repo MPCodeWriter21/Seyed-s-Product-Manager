@@ -1,5 +1,11 @@
 #include "utils.hpp"
 #include <iostream>
+#include <regex>
+
+// https://stackoverflow.com/a/6967885
+const char *PHONE_REGEX = "\\+(9[976]\\d|8[987530]\\d|6[987]\\d|5[90]\\d|42\\d|3[875]"
+                          "\\d|2[98654321]\\d|9[8543210]|8[6421]|6[6543210]|5[87654321]"
+                          "|4[987654310]|3[9643210]|2[70]|7|1)\\d{1,15}$";
 
 void replace(std::string &str, const std::string &from, const std::string &to)
 {
@@ -55,4 +61,13 @@ void enable_comma_locale()
 {
     static std::locale comma_locale(std::locale(), new comma_numpunct());
     std::cout.imbue(comma_locale);
+}
+
+bool validate_phone_number(const std::string &phone_number)
+{
+    if (phone_number.length() < 3 || phone_number.length() > 19)
+        return false;
+    if (std::regex_match(phone_number, std::regex(PHONE_REGEX)))
+        return true;
+    return false;
 }

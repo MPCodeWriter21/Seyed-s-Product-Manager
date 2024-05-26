@@ -3,7 +3,6 @@
 #include "utils/exceptions.hpp"
 #include "utils/utils.hpp"
 #include "utils/warnings.hpp"
-#include <exception>
 #include <iostream>
 #include <string>
 #include <vector>
