@@ -12,7 +12,7 @@
 #include <iostream>
 #include <string>
 #include <tchar.h>
-void AddProduct(char *id_, char *name_, char *price_ , Products &products); //,  char descript_);
+void AddProduct(char *name_, char *price_ ,char *available_count_ ,char *descript_, Products &products);
 void ShowProducts(Products &);
 void show_info_gui_order(Order order);
 void show_info_gui_product(Product product);
@@ -101,7 +101,7 @@ int run_gui(std::filesystem::path executable_path, Users &database)
     bool wrong_pass = false;
     bool login_pass = false;
 
-    static char id_[128];
+    static char available_count_[128];
     static char name_[128];
     static char price_[128];
     static char descript_[128];
@@ -293,7 +293,7 @@ int run_gui(std::filesystem::path executable_path, Users &database)
             {
                 // ImGui::SliderInt("Price", &price, 0, 100000);
                 ImGui::InputText(
-                    "ID", id_, sizeof(passput), ImGuiInputTextFlags_EnterReturnsTrue
+                    "Available Count", available_count_, sizeof(passput), ImGuiInputTextFlags_EnterReturnsTrue
                 );
                 ImGui::Separator();
                 ImGui::InputText(
@@ -304,12 +304,12 @@ int run_gui(std::filesystem::path executable_path, Users &database)
                     "Price", price_, sizeof(passput),
                     ImGuiInputTextFlags_EnterReturnsTrue
                 );
-                /*std::string descript_ = ImGui::InputText(
+                ImGui::InputText(
                     "Descript", descript_, sizeof(passput),
-                    ImGuiInputTextFlags_EnterReturnsTrue);*/
+                    ImGuiInputTextFlags_EnterReturnsTrue);
                 if (ImGui::Button("Save"))
                 {
-                    //AddProduct(id_, name_, price_ , &products); //, descript_ );
+                    AddProduct( name_, price_ , available_count_, descript_, products);
                     add_product_button = false;
                 }
             }
@@ -520,38 +520,27 @@ LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
     return ::DefWindowProcW(hWnd, msg, wParam, lParam);
 }
 
-void AddProduct(char *id_, char *name_, char *price_ , Products &products ) //, char descript_ )
+void AddProduct( char *name_, char *price_ , char *available_count_ ,   char *descript_ , Products &products )
 {
-    // Checks to see if valid arguments were supplied to the program
-    // if (id_ != NULL)
-    // {
-    //     ImGui::Text("ID is determined for the product automatically.");
-    // }
-    // if (name_ == NULL)
-    // {
-    //     ImGui::Text("You need to specify a product-name to add a product.");
-    // }
-    // if (price_ == NULL)
-    // {
-    //     ImGui::Text("You need to specify a price for the product.");
-    // }
-    // else 
-    // {
-    //     products.add_product(*name_, *price_, *available_count, *description);
-    // }
-    // if (available_count == nullptr)
-    // {
-    //     ImGui::Text(
-    //         "How many products do we have available? Please tell me."
-    //     );
-    // }
+    if (name_ == NULL)
+    {
+        ImGui::Text("You need to specify a product-name to add a product.");
+    }
+    if (price_ == NULL)
+    {
+        ImGui::Text("You need to specify a price for the product.");
+    }
+    if (available_count_ == nullptr)
+    {
+        ImGui::Text(
+            "How many products do we have available? Please tell me."
+        );
+    }
     // if (description_ == nullptr)
     // {
     //     description_ = new std::string("");
     // }
-
-    // std::cout << "Adding `" << *name << "`..." << std::endl;
-    // products.add_product(*name, *price, *available_count, *description);
+    products.add_product(name_, std::stod(price_), std::stoi(available_count_) , descript_);
     // delete description;
 }
 
