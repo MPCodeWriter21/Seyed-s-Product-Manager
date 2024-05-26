@@ -1,21 +1,22 @@
+#include "gui/gui.hpp"
 #include "database/database.hpp"
 #include "database/order.hpp"
 #include "database/product.hpp"
 #include "database/user.hpp"
-#include "gui/gui.hpp"
 #include "gui/imgui/imgui.h"
 #include "gui/imgui/imgui_impl_dx9.h"
 #include "gui/imgui/imgui_impl_win32.h"
-#include "utils/argparse.hpp"
 #include <d3d9.h>
 #include <filesystem>
 #include <iostream>
 #include <string>
 #include <tchar.h>
-void AddProduct(char *id_, char *name_, char *price_); //,  char descript_);
+
+void AddProduct(char *id_, char *name_, char *price_ , Products &products); //,  char descript_);
 void ShowProducts(Products &);
 void show_info_gui_order(Order order);
 void show_info_gui_product(Product product);
+
 int run_gui(std::filesystem::path executable_path, Users &database)
 {
     Users users((Users &)database);
@@ -187,44 +188,43 @@ int run_gui(std::filesystem::path executable_path, Users &database)
         // ImGui :: SetWindowSize ( ImGui :: GetMainViewport () -> Size ) ;
 
         ImGui::PushFont(mainfont);
-        // ImGui::SetNextWindowPos(ImVec2(600, 250));
-        // ImGui::SetNextWindowSize(ImVec2(200, 200));
-        // if (login_pass == false)
-        // {
-        //     if (ImGui::Begin(
-        //             "LOGIN", NULL,
-        //             ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize |
-        //                 ImGuiWindowFlags_NoMove
-        //         ))
-        //     {
+        ImGui::SetNextWindowPos(ImVec2(600, 250));
+        ImGui::SetNextWindowSize(ImVec2(200, 200));
+        if (login_pass == false)
+        {
+            if (ImGui::Begin(
+                    "LOGIN", NULL,
+                    ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize |
+                        ImGuiWindowFlags_NoMove
+                ))
+            {
 
-        //         ImGui::Text("Enter Your Password");
-        //         ImGui::InputText(
-        //             "##", passput, sizeof(passput),
-        //             ImGuiInputTextFlags_Password |
-        //             ImGuiInputTextFlags_EnterReturnsTrue
-        //         );
-        //         if (wrong_pass == true)
-        //         {
-        //             ImGui::Text("Wrong Password");
-        //         }
-        //         if (ImGui::Button("login"))
-        //         {
-        //             if
-        //             (users.get_user(1)->check_password(Password::from_string(passput)
-        //                 ))
-        //             {
-        //                 logged = true;
-        //             }
-        //             else
-        //             {
-        //                 wrong_pass = true;
-        //             }
-        //         }
-        //     }
-        //     ImGui::End();
-        // }
-        logged = true;
+                ImGui::Text("Enter Your Password");
+                ImGui::InputText(
+                    "##", passput, sizeof(passput),
+                    ImGuiInputTextFlags_Password |
+                    ImGuiInputTextFlags_EnterReturnsTrue
+                );
+                if (wrong_pass == true)
+                {
+                    ImGui::Text("Wrong Password");
+                }
+                if (ImGui::Button("login"))
+                {
+                    if
+                    (users.get_user(1)->check_password(Password::from_string(passput)
+                        ))
+                    {
+                        logged = true;
+                    }
+                    else
+                    {
+                        wrong_pass = true;
+                    }
+                }
+            }
+            ImGui::End();
+        }
         ImGui::SetCursorPos(ImVec2(0, 0));
         ImGui::SetNextWindowSize(ImVec2(600, 400));
         ImGui::SetNextWindowPos(ImVec2(400, 100));
@@ -309,7 +309,7 @@ int run_gui(std::filesystem::path executable_path, Users &database)
                     ImGuiInputTextFlags_EnterReturnsTrue);*/
                 if (ImGui::Button("Save"))
                 {
-                    AddProduct(id_, name_, price_); //, descript_ );
+                    //AddProduct(id_, name_, price_ , &products); //, descript_ );
                     add_product_button = false;
                 }
             }
@@ -523,21 +523,26 @@ LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
     }
     return ::DefWindowProcW(hWnd, msg, wParam, lParam);
 }
-void AddProduct(char *id_, char *name_, char *price_) //, char descript_ )
+
+void AddProduct(char *id_, char *name_, char *price_ , Products &products ) //, char descript_ )
 {
     // Checks to see if valid arguments were supplied to the program
-    if (id_ != NULL)
-    {
-        ImGui::Text("ID is determined for the product automatically.");
-    }
-    if (name_ == NULL)
-    {
-        ImGui::Text("You need to specify a product-name to add a product.");
-    }
-    if (price_ == NULL)
-    {
-        ImGui::Text("You need to specify a price for the product.");
-    }
+    // if (id_ != NULL)
+    // {
+    //     ImGui::Text("ID is determined for the product automatically.");
+    // }
+    // if (name_ == NULL)
+    // {
+    //     ImGui::Text("You need to specify a product-name to add a product.");
+    // }
+    // if (price_ == NULL)
+    // {
+    //     ImGui::Text("You need to specify a price for the product.");
+    // }
+    // else 
+    // {
+    //     products.add_product(*name_, *price_, *available_count, *description);
+    // }
     // if (available_count == nullptr)
     // {
     //     ImGui::Text(
