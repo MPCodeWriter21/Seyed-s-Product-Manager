@@ -64,7 +64,7 @@ endif
 
 .PHONY: all clean debug
 
-all: $(BUILD_DIR) $(BUILD_MISC_FILES) $(OUT) #gui.o main
+all: $(BUILD_DIR) $(BUILD_MISC_FILES) $(OUT)
 
 $(BUILD_DIR):
 	mkdir -p $(BUILD_DIR)

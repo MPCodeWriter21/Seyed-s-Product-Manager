@@ -1,17 +1,28 @@
+#include "gui/gui.hpp"
 #include "database/database.hpp"
 #include "database/order.hpp"
 #include "database/product.hpp"
 #include "database/user.hpp"
-#include "gui/gui.hpp"
 #include "gui/imgui/imgui.h"
 #include "gui/imgui/imgui_impl_dx9.h"
 #include "gui/imgui/imgui_impl_win32.h"
+#include "utils/argparse.hpp"
+#include "utils/utils.hpp"
 #include <d3d9.h>
 #include <filesystem>
 #include <iostream>
 #include <string>
 #include <tchar.h>
 
+bool add_product_button = false;
+bool new_order_button = false;
+bool orders_button = false;
+bool dokme_Gardesh_mali = false;
+bool products_button = false;
+bool theme_button = false;
+bool dark_theme_button = true;
+void new_order(Orders &orders, Products &products); //, bool new_order_button );
+void turnover(Orders &orders, Products &products, char *from_date, char *to_date);
 void AddProduct(
     char *name_,
     char *price_,
@@ -22,7 +33,7 @@ void AddProduct(
 void ShowProducts(Products &);
 void show_info_gui_order(Order order);
 void show_info_gui_product(Product product);
-
+void stylish ();
 int run_gui(std::filesystem::path executable_path, Users &database)
 {
     Users users((Users &)database);
@@ -94,14 +105,7 @@ int run_gui(std::filesystem::path executable_path, Users &database)
 
     // Buttons
     bool done = false;
-    bool add_product_button = false;
-    // int price = 0;
-    bool new_order_button = false;
-    bool orders_button = false;
-    bool dokme_Gardesh_mali = false;
-    bool products_button = false;
-    bool theme_button = false;
-    bool dark_theme_button = true;
+
     // Login Variables
     bool logged = false;
     static char passput[128];
@@ -112,53 +116,12 @@ int run_gui(std::filesystem::path executable_path, Users &database)
     static char name_[128];
     static char price_[128];
     static char descript_[128];
+    static char start_date_[128];
+    static char end_date_[128];
+    
+// ImGuiStyle new_dark;
+    stylish ();
 
-    ImGuiStyle &style = ImGui::GetStyle();
-    // Blonge Style (blue_orange)
-    style.Alpha = 1.0f;
-    style.FrameRounding = 7.0f;
-    // style.Colors[ImGuiCol_Text] = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
-    // style.Colors[ImGuiCol_TextDisabled] = ImVec4(0.60f, 0.60f, 0.60f, 1.00f);
-    // // style.Colors[ImGuiCol_WindowBg] = ImVec4(0.13f, 0.22f, 0.35f, 0.70f);
-    // style.Colors[ImGuiCol_WindowBg] = ImVec4(0.16f, 0.16f, 0.16f, 1.00f);
-    // style.Colors[ImGuiCol_PopupBg] = ImVec4(.00f, 1.00f, 1.00f, 0.94f);
-    // // style.Colors[ImGuiCol_Border] = ImVec4(0.00f, 0.00f, 0.00f, 0.20f);
-    // style.Colors[ImGuiCol_Border] = ImVec4(1.00f, 1.00f, 1.00f, 0.10f);
-    // style.Colors[ImGuiCol_BorderShadow] = ImVec4(1.00f, 1.00f, 1.00f, 0.10f);
-    // style.Colors[ImGuiCol_FrameBg] = ImVec4(0.05f, 0.00f, 0.20f, 0.94f);
-    // style.Colors[ImGuiCol_FrameBgHovered] = ImVec4(0.26f, 0.59f, 0.98f, 0.40f);
-    // style.Colors[ImGuiCol_FrameBgActive] = ImVec4(0.26f, 0.59f, 0.98f, 0.67f);
-    // style.Colors[ImGuiCol_TitleBg] = ImVec4(1.00f, 0.45f, 0.12f, 1.00f);
-    // style.Colors[ImGuiCol_TitleBgCollapsed] = ImVec4(1.00f, 0.45f, 0.12f, 0.70f);
-    // style.Colors[ImGuiCol_TitleBgActive] = ImVec4(0.90f, 0.35f, 0.02f, 1.00f);
-    // style.Colors[ImGuiCol_MenuBarBg] = ImVec4(0.86f, 0.86f, 0.86f, 1.00f);
-    // style.Colors[ImGuiCol_ScrollbarBg] = ImVec4(0.98f, 0.98f, 0.98f, 0.53f);
-    // style.Colors[ImGuiCol_ScrollbarGrab] = ImVec4(0.69f, 0.69f, 0.69f, 1.00f);
-    // style.Colors[ImGuiCol_ScrollbarGrabHovered] = ImVec4(0.59f, 0.59f, 0.59f, 1.00f);
-    // style.Colors[ImGuiCol_ScrollbarGrabActive] = ImVec4(0.49f, 0.49f, 0.49f, 1.00f);
-    // style.Colors[ImGuiCol_CheckMark] = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
-    // style.Colors[ImGuiCol_SliderGrab] = ImVec4(0.24f, 0.52f, 0.88f, 1.00f);
-    // style.Colors[ImGuiCol_SliderGrabActive] = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
-    // style.Colors[ImGuiCol_ButtonActive] = ImVec4(0.26f, 0.59f, 0.98f, 0.40f);
-    // style.Colors[ImGuiCol_ButtonHovered] = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
-    // style.Colors[ImGuiCol_Button] = ImVec4(0.15f, 0.02f, 0.68f, 1.00f);
-    // style.Colors[ImGuiCol_Header] = ImVec4(0.26f, 0.59f, 0.98f, 0.31f);
-    // style.Colors[ImGuiCol_HeaderHovered] = ImVec4(0.26f, 0.59f, 0.98f, 0.80f);
-    // style.Colors[ImGuiCol_HeaderActive] = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
-    // style.Colors[ImGuiCol_ResizeGrip] = ImVec4(1.00f, 1.00f, 1.00f, 0.50f);
-    // style.Colors[ImGuiCol_ResizeGripHovered] = ImVec4(0.26f, 0.59f, 0.98f, 0.67f);
-    // style.Colors[ImGuiCol_ResizeGripActive] = ImVec4(0.26f, 0.59f, 0.98f, 0.95f);
-    // style.Colors[ImGuiCol_PlotLines] = ImVec4(0.39f, 0.39f, 0.39f, 1.00f);
-    // style.Colors[ImGuiCol_PlotLinesHovered] = ImVec4(1.00f, 0.43f, 0.35f, 1.00f);
-    // style.Colors[ImGuiCol_PlotHistogram] = ImVec4(0.90f, 0.70f, 0.00f, 1.00f);
-    // style.Colors[ImGuiCol_PlotHistogramHovered] = ImVec4(1.00f, 0.60f, 0.00f, 1.00f);
-    // style.Colors[ImGuiCol_TextSelectedBg] = ImVec4(0.26f, 0.59f, 0.98f, 0.35f);
-    // style.Colors[ImGuiCol_] = ImVec4(0.26f, 0.59f, 0.98f, 0.35f);
-    style.WindowRounding = 10;
-    style.WindowBorderSize = 2;
-    // style.rounding
-    // style.Colors[ImGuiCol_Button] = ImVec4(28, 41, 172, 50);
-    // style.Colors[ImGuiCol_Border] = ImVec4(255, 255, 255, 0);
     while (!done)
     {
         // Poll and handle messages (inputs, window resize, etc.)
@@ -194,8 +157,10 @@ int run_gui(std::filesystem::path executable_path, Users &database)
         // ImGui :: SetWindowSize ( ImGui :: GetMainViewport () -> Size ) ;
 
         ImGui::PushFont(mainfont);
-        ImGui::SetNextWindowPos(ImVec2(600, 250));
-        ImGui::SetNextWindowSize(ImVec2(200, 200));
+        //ImGui::SetNextWindowPos(ImVec2(600, 250));
+        ImGui::SetNextWindowPos(ImVec2(300, 50));
+        //ImGui::SetNextWindowSize(ImVec2(200, 200));
+        ImGui::SetNextWindowSize(ImVec2(400, 300));
         if (login_pass == false)
         {
             if (ImGui::Begin(
@@ -206,7 +171,7 @@ int run_gui(std::filesystem::path executable_path, Users &database)
             {
 
                 ImGui::Text("Enter Your Password");
-                ImGui::InputText(
+                bool log = ImGui::InputText(
                     "##", passput, sizeof(passput),
                     ImGuiInputTextFlags_Password | ImGuiInputTextFlags_EnterReturnsTrue
                 );
@@ -214,7 +179,7 @@ int run_gui(std::filesystem::path executable_path, Users &database)
                 {
                     ImGui::Text("Wrong Password");
                 }
-                if (ImGui::Button("login"))
+                if (ImGui::Button("login") or log)
                 {
                     if (users.get_user(1)->check_password(Password::from_string(passput)
                         ))
@@ -245,7 +210,7 @@ int run_gui(std::filesystem::path executable_path, Users &database)
                 // ImGui::SetWindowFontScale(2.0f);
                 ImGui::SetCursorPos(ImVec2(280, 40));
                 ImGui::Text("Hello!");
-                ImGui::SetCursorPos(ImVec2(160, 60));
+                ImGui::SetCursorPos(ImVec2(200, 60));
                 ImGui::Text("Please choose the action:");
 
                 ImGui::SetCursorPos(ImVec2(20, 100));
@@ -287,7 +252,7 @@ int run_gui(std::filesystem::path executable_path, Users &database)
             }
         }
         // New Product Window
-        ImGui::SetNextWindowSize(ImVec2(300, 210));
+        ImGui::SetNextWindowSize(ImVec2(300, 250));
         if (add_product_button)
         {
             if (ImGui::Begin(
@@ -297,16 +262,14 @@ int run_gui(std::filesystem::path executable_path, Users &database)
             {
                 // ImGui::SliderInt("Price", &price, 0, 100000);
                 ImGui::InputText(
-                    "Available Count", available_count_, sizeof(passput),
-                    ImGuiInputTextFlags_EnterReturnsTrue
-                );
-                ImGui::Separator();
-                ImGui::InputText(
                     "Name", name_, sizeof(passput), ImGuiInputTextFlags_EnterReturnsTrue
                 );
-                ImGui::Separator();
                 ImGui::InputText(
                     "Price", price_, sizeof(passput),
+                    ImGuiInputTextFlags_EnterReturnsTrue
+                );
+                ImGui::InputText(
+                    "Count(s)", available_count_, sizeof(passput),
                     ImGuiInputTextFlags_EnterReturnsTrue
                 );
                 ImGui::InputText(
@@ -330,6 +293,7 @@ int run_gui(std::filesystem::path executable_path, Users &database)
                     ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize
                 ))
             {
+                new_order(orders, products); //, new_order_button);
             }
             ImGui::End();
         }
@@ -342,7 +306,7 @@ int run_gui(std::filesystem::path executable_path, Users &database)
                     ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize
                 ))
             {
-                ImGui::BeginTable("", 5, ImGuiTableFlags_RowBg);
+                ImGui::BeginTable("##", 5, ImGuiTableFlags_RowBg);
                 const std::vector<Order> &list_of_orders = orders.list_orders(products);
                 for (unsigned int i = 0; i < list_of_orders.size(); i++)
                 {
@@ -354,7 +318,7 @@ int run_gui(std::filesystem::path executable_path, Users &database)
             ImGui::End();
         }
         // Gardesh mali panjare
-        ImGui::SetNextWindowSize(ImVec2(100, 500));
+        ImGui::SetNextWindowSize(ImVec2(350, 500));
         if (dokme_Gardesh_mali)
         {
             if (ImGui::Begin(
@@ -362,11 +326,20 @@ int run_gui(std::filesystem::path executable_path, Users &database)
                     ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize
                 ))
             {
+                ImGui::InputText(
+                    ": From", start_date_, sizeof(passput),
+                    ImGuiInputTextFlags_EnterReturnsTrue
+                );
+                ImGui::InputText(
+                    ": To", end_date_, sizeof(passput),
+                    ImGuiInputTextFlags_EnterReturnsTrue
+                );
+                turnover(orders, products, start_date_, end_date_);
             }
             ImGui::End();
         }
         // Products Window
-        ImGui::SetNextWindowSize(ImVec2(600, 800));
+        ImGui::SetNextWindowSize(ImVec2(700, 600));
         if (products_button)
         {
             if (ImGui::Begin(
@@ -378,12 +351,13 @@ int run_gui(std::filesystem::path executable_path, Users &database)
                 for (unsigned int i = 0; i < list_of_products.size(); i++)
                 {
                     show_info_gui_product(list_of_products[i]);
+                    ImGui::Separator();
                 }
             }
             ImGui::End();
         }
         // Themes
-        ImGui::SetNextWindowSize(ImVec2(150, 110));
+        ImGui::SetNextWindowSize(ImVec2(165, 120));
         if (theme_button)
         {
             if (ImGui::Begin(
@@ -403,7 +377,9 @@ int run_gui(std::filesystem::path executable_path, Users &database)
                 {
                     if (ImGui::Button("Dark", ImVec2(130, 50)))
                     {
-                        ImGui::StyleColorsDark();
+                        stylish ();
+                        // ImGui::StyleColorsDark();
+                        // //ImGui::PushStyle(style);
                         dark_theme_button = true;
                     }
                 }
@@ -592,18 +568,227 @@ void show_info_gui_order(Order order)
     if (order.get_total() != order.get_total_after_discount())
         ImGui::Text(
             "%s", ("Total with " + std::to_string(order.get_discount()) +
-                   "% discount: " + std::to_string(order.get_total_after_discount()))
-                      .c_str()
+                    "% discount: " + std::to_string(order.get_total_after_discount()))
+                    .c_str()
         );
     if (order.is_paid())
         ImGui::Text(
             "%s", ("Paid in `" + order.get_pay_date() + "` at `" +
-                   order.get_pay_time() + "`.")
-                      .c_str()
+                    order.get_pay_time() + "`.")
+                    .c_str()
         );
     else
         ImGui::Text("Is Paid                : No");
     ImGui::Text(
         "%s", ("No. of Orders          : " + std::to_string(order.get_count())).c_str()
     );
+}
+
+void turnover(Orders &orders, Products &products, char *from_date, char *to_date)
+{
+    std::vector<Order> list_of_orders;
+    if (from_date == nullptr && to_date == nullptr)
+        list_of_orders =
+            orders.get_orders({"now", "-1 month", "localtime"}, {}, products);
+    else if (from_date != nullptr && to_date == nullptr)
+        list_of_orders = orders.get_orders({from_date, "localtime"}, {}, products);
+    else if (from_date == nullptr && to_date != nullptr)
+        list_of_orders = orders.get_orders({}, {to_date, "localtime"}, products);
+    else
+        list_of_orders = orders.get_orders(
+            {from_date, "localtime"}, {to_date, "localtime"}, products
+        );
+    if (list_of_orders.size() < 1)
+    {
+        ImGui::Text("We did not get any payments\n in that time frame :(");
+        new_order_button = false;
+    }
+    ImGui::Text(
+        "%s", ("We got " + std::to_string(list_of_orders.size()) + " payments!").c_str()
+    );
+    double total_profit = 0;
+    double total_no_discount_sales = 0;
+    for (size_t i = 0; i < list_of_orders.size(); i++)
+    {
+        total_no_discount_sales += list_of_orders[i].get_total();
+        total_profit += list_of_orders[i].get_total_after_discount();
+    }
+    ImGui::Text("%s", ("We earned " + std::to_string(total_profit)).c_str());
+    if (total_profit != total_no_discount_sales)
+        ImGui::Text(
+            "%s",
+            (" but we could have earned " + std::to_string(total_no_discount_sales) +
+            " if you hadn't given the customers\n so much discounts")
+                .c_str()
+        );
+    new_order_button = false;
+}
+
+void new_order(Orders &orders, Products &products) //, bool new_order_button)
+{
+    std::vector<ProductOrder> product_orders;
+    int product_id, count;
+    while (true)
+    {
+        ImGui::Text("Enter the product id : ");
+        ImGui::InputInt(
+            "##", &product_id, sizeof(product_id), ImGuiInputTextFlags_EnterReturnsTrue
+        );
+        if (product_id == 0)
+            break;
+        Product *product = products.get_product(product_id);
+        if (product == nullptr)
+        {
+            ImGui::Text(
+                "%s",
+                ("Product with id " + std::to_string(product_id) + " does not exist!")
+                    .c_str()
+            );
+            continue;
+        }
+        int product_order_index = -1;
+        for (size_t i = 0; i < product_orders.size(); i++)
+        {
+            if (product_orders[i].product.get_id() == product->get_id())
+            {
+                product_order_index = i;
+                break;
+            }
+        }
+        if (product_order_index == -1)
+            ImGui::Text("Enter the number of products: ");
+        else
+            ImGui::Text(
+                "%s",
+                ("Enter the number of products(Currently " +
+                std::to_string(product_orders[product_order_index].count) + "): ")
+                    .c_str()
+            );
+        ImGui::InputInt(
+            "##", &count, sizeof(count), ImGuiInputTextFlags_EnterReturnsTrue
+        );
+        if (count < 1)
+        {
+            ImGui::Text("No product was added to the order!");
+            continue;
+        }
+        if ((unsigned int)count > product->get_available_count())
+        {
+            ImGui::Text(
+                "%s", ("Sorry but there are only " +
+                        std::to_string(product->get_available_count()) +
+                        " of this product left in stock!")
+                        .c_str()
+            );
+            continue;
+        }
+        if (product_order_index == -1)
+            product_orders.push_back(ProductOrder(*product, count));
+        else
+            product_orders[product_order_index].count = count;
+    }
+    if (product_orders.size() < 1)
+    {
+        ImGui::Text("No product means no order!");
+        new_order_button = false;
+    }
+    int discount = 0;
+    ImGui::Text("Any discounts? If not just enter 0: ");
+    while (true)
+    {
+        ImGui::InputInt(
+            "##", &discount, sizeof(discount), ImGuiInputTextFlags_EnterReturnsTrue
+        );
+        if (discount < 0 || discount > 100)
+        {
+            ImGui::Text(
+                "%s",
+                ("Sorry but it's not possible to have a " + std::to_string(discount) +
+                "% discount!\n" + "Maybe try again? Discount(0-100): ")
+                    .c_str()
+            );
+        }
+        else
+            break;
+    }
+    // std::string phone_number, check;
+    static char phone_number[128], check[128];
+    ImGui::Text("Please enter the customer's phone number(e.g. +989112223333): ");
+    while (true)
+    {
+        ImGui::InputText(
+            "##", phone_number, sizeof(phone_number), ImGuiInputTextFlags_EnterReturnsTrue
+        );
+        if (validate_phone_number(phone_number))
+            break;
+        else
+        {
+            ImGui::Text("Sorry but I don't recognize this phone number format...\nAre "
+                        "you sure that's correct?(Y/n): ");
+            ImGui::InputText(
+                "##", check, sizeof(check), ImGuiInputTextFlags_EnterReturnsTrue
+            );
+            if (std::string(check) == "y" || std::string(check) == "Y")
+                break;
+            ImGui::Text("Please enter a valid phone number(e.g. +989445556666): ");
+        }
+    }
+    ImGui::Text("Creating a new order...");
+    orders.add_order(product_orders, phone_number, discount);
+}
+void stylish ()
+{
+    ImGui::StyleColorsDark();
+    ImGuiStyle &style = ImGui::GetStyle();
+    style.WindowPadding = ImVec2(15, 15);
+	style.WindowRounding = 5.0f;
+	style.FramePadding = ImVec2(5, 5);
+	style.FrameRounding = 4.0f;
+	style.ItemSpacing = ImVec2(12, 8);
+	style.ItemInnerSpacing = ImVec2(8, 6);
+	style.IndentSpacing = 25.0f;
+	style.ScrollbarSize = 15.0f;
+	style.ScrollbarRounding = 9.0f;
+	style.GrabMinSize = 5.0f;
+	style.GrabRounding = 3.0f;
+
+	style.Colors[ImGuiCol_Text] = ImVec4(0.80f, 0.80f, 0.83f, 1.00f);
+	style.Colors[ImGuiCol_TextDisabled] = ImVec4(0.24f, 0.23f, 0.29f, 1.00f);
+	//style.Colors[ImGuiCol_WindowBg] = ImVec4(0.06f, 0.05f, 0.07f, 1.00f);
+    style.Colors[ImGuiCol_WindowBg] = ImVec4(0.16f, 0.16f, 0.16f, 1.00f);
+	style.Colors[ImGuiCol_PopupBg] = ImVec4(0.07f, 0.07f, 0.09f, 1.00f);
+	style.Colors[ImGuiCol_Border] = ImVec4(0.80f, 0.80f, 0.83f, 0.88f);
+	style.Colors[ImGuiCol_BorderShadow] = ImVec4(0.92f, 0.91f, 0.88f, 0.00f);
+	style.Colors[ImGuiCol_FrameBg] = ImVec4(0.10f, 0.09f, 0.12f, 1.00f);
+	style.Colors[ImGuiCol_FrameBgHovered] = ImVec4(0.24f, 0.23f, 0.29f, 1.00f);
+	style.Colors[ImGuiCol_FrameBgActive] = ImVec4(0.56f, 0.56f, 0.58f, 1.00f);
+	style.Colors[ImGuiCol_TitleBg] = ImVec4(0.10f, 0.09f, 0.12f, 1.00f);
+	style.Colors[ImGuiCol_TitleBgCollapsed] = ImVec4(1.00f, 0.98f, 0.95f, 0.75f);
+	style.Colors[ImGuiCol_TitleBgActive] = ImVec4(0.07f, 0.07f, 0.09f, 1.00f);
+	style.Colors[ImGuiCol_MenuBarBg] = ImVec4(0.10f, 0.09f, 0.12f, 1.00f);
+	style.Colors[ImGuiCol_ScrollbarBg] = ImVec4(0.10f, 0.09f, 0.12f, 1.00f);
+	style.Colors[ImGuiCol_ScrollbarGrab] = ImVec4(0.80f, 0.80f, 0.83f, 0.31f);
+	style.Colors[ImGuiCol_ScrollbarGrabHovered] = ImVec4(0.56f, 0.56f, 0.58f, 1.00f);
+	style.Colors[ImGuiCol_ScrollbarGrabActive] = ImVec4(0.06f, 0.05f, 0.07f, 1.00f);
+	style.Colors[ImGuiCol_CheckMark] = ImVec4(0.80f, 0.80f, 0.83f, 0.31f);
+	style.Colors[ImGuiCol_SliderGrab] = ImVec4(0.80f, 0.80f, 0.83f, 0.31f);
+	style.Colors[ImGuiCol_SliderGrabActive] = ImVec4(0.06f, 0.05f, 0.07f, 1.00f);
+	style.Colors[ImGuiCol_Button] = ImVec4(0.10f, 0.09f, 0.12f, 1.00f);
+	style.Colors[ImGuiCol_ButtonHovered] = ImVec4(0.24f, 0.23f, 0.29f, 1.00f);
+	style.Colors[ImGuiCol_ButtonActive] = ImVec4(0.56f, 0.56f, 0.58f, 1.00f);
+	style.Colors[ImGuiCol_Header] = ImVec4(0.10f, 0.09f, 0.12f, 1.00f);
+	style.Colors[ImGuiCol_HeaderHovered] = ImVec4(0.56f, 0.56f, 0.58f, 1.00f);
+	style.Colors[ImGuiCol_HeaderActive] = ImVec4(0.06f, 0.05f, 0.07f, 1.00f);
+	style.Colors[ImGuiCol_ResizeGrip] = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
+	style.Colors[ImGuiCol_ResizeGripHovered] = ImVec4(0.56f, 0.56f, 0.58f, 1.00f);
+	style.Colors[ImGuiCol_ResizeGripActive] = ImVec4(0.06f, 0.05f, 0.07f, 1.00f);
+	style.Colors[ImGuiCol_Button] = ImVec4(0.40f, 0.39f, 0.38f, 0.16f);
+	style.Colors[ImGuiCol_ButtonHovered] = ImVec4(0.40f, 0.39f, 0.38f, 0.39f);
+	style.Colors[ImGuiCol_ButtonActive] = ImVec4(0.40f, 0.39f, 0.38f, 1.00f);
+	style.Colors[ImGuiCol_PlotLines] = ImVec4(0.40f, 0.39f, 0.38f, 0.63f);
+	style.Colors[ImGuiCol_PlotLinesHovered] = ImVec4(0.25f, 1.00f, 0.00f, 1.00f);
+	style.Colors[ImGuiCol_PlotHistogram] = ImVec4(0.40f, 0.39f, 0.38f, 0.63f);
+	style.Colors[ImGuiCol_PlotHistogramHovered] = ImVec4(0.25f, 1.00f, 0.00f, 1.00f);
+	style.Colors[ImGuiCol_TextSelectedBg] = ImVec4(0.25f, 1.00f, 0.00f, 0.43f);
+	style.Colors[ImGuiCol_ModalWindowDimBg] = ImVec4(1.00f, 0.98f, 0.95f, 0.73f);
 }
