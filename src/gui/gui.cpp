@@ -6,7 +6,6 @@
 #include "gui/imgui/imgui.h"
 #include "gui/imgui/imgui_impl_dx9.h"
 #include "gui/imgui/imgui_impl_win32.h"
-#include "utils/utils.hpp"
 #include <d3d9.h>
 #include <filesystem>
 #include <iostream>
@@ -91,10 +90,6 @@ int run_gui(std::filesystem::path executable_path, Users &database)
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard; // Enable Keyboard Controls
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;  // Enable Gamepad Controls
 
-    // Setup Dear ImGui style
-    ImGui::StyleColorsDark();
-    // ImGui::StyleColorsLight();
-
     // Setup Platform/Renderer backends
     ImGui_ImplWin32_Init(hwnd);
     ImGui_ImplDX9_Init(g_pd3dDevice);
@@ -106,9 +101,7 @@ int run_gui(std::filesystem::path executable_path, Users &database)
     ImFont *mainfont = io.Fonts->AddFontFromFileTTF(font_path.c_str(), 30);
     IM_ASSERT(mainfont != NULL);
     // Our state
-    // ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
     ImVec4 clear_color = ImVec4(40, 40, 40, 50);
-    // ImVec4 clear_color = ImVec4(255, 255, 255, 200);
 
     // Main loop
 
@@ -162,20 +155,14 @@ int run_gui(std::filesystem::path executable_path, Users &database)
         ImGui_ImplWin32_NewFrame();
         ImGui::NewFrame();
 
-        // ImGui :: SetWindowPos  ( ImGui :: GetMainViewport () -> Pos ) ;
-        // ImGui :: SetWindowSize ( ImGui :: GetMainViewport () -> Size ) ;
-
         ImGui::PushFont(mainfont);
-        // ImGui::SetNextWindowPos(ImVec2(600, 250));
-        ImGui::SetNextWindowPos(ImVec2(300, 50));
-        // ImGui::SetNextWindowSize(ImVec2(200, 200));
         ImGui::SetNextWindowSize(ImVec2(400, 300));
+        ImGui::SetNextWindowPos(ImVec2(io.DisplaySize.x*0.5f, io.DisplaySize.y * 0.5f), ImGuiCond_Always , ImVec2(0.5f,0.5f));
         if (login_pass == false)
         {
             if (ImGui::Begin(
                     "LOGIN", NULL,
-                    ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize |
-                        ImGuiWindowFlags_NoMove
+                    ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove
                 ))
             {
 
@@ -205,15 +192,14 @@ int run_gui(std::filesystem::path executable_path, Users &database)
         }
         ImGui::SetCursorPos(ImVec2(0, 0));
         ImGui::SetNextWindowSize(ImVec2(600, 400));
-        ImGui::SetNextWindowPos(ImVec2(400, 100));
+        ImGui::SetNextWindowPos(ImVec2(io.DisplaySize.x*0.5f, io.DisplaySize.y * 0.5f), ImGuiCond_Always , ImVec2(0.5f,0.5f));
         // Main Page
         if (logged)
         {
             login_pass = true;
             if (ImGui::Begin(
                     "Main Window", NULL,
-                    ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize |
-                        ImGuiWindowFlags_NoMove
+                    ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove
                 ))
             {
                 // ImGui::SetWindowFontScale(2.0f);
