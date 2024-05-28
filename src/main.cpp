@@ -145,7 +145,7 @@ int main(int argc, char *argv[])
         const Product *product = products.get_product(*id);
         if (product == nullptr)
             std::cerr << "Could not find a product with id=" + std::to_string(*id)
-                      << std::endl;
+                        << std::endl;
         else
         {
             product->show_info();
@@ -194,7 +194,7 @@ int main(int argc, char *argv[])
         Product *product = products.get_product(*id);
         if (product == nullptr)
             std::cerr << "Could not find a product with id=" + std::to_string(*id)
-                      << std::endl;
+                        << std::endl;
         else
         {
             if (name != nullptr)
@@ -241,7 +241,7 @@ int main(int argc, char *argv[])
                 std::cout << "Enter the number of products: ";
             else
                 std::cout << "Enter the number of products(Currently "
-                          << product_orders[product_order_index].count << "): ";
+                        << product_orders[product_order_index].count << "): ";
             std::cin >> count;
             if (count < 1)
             {
@@ -251,8 +251,8 @@ int main(int argc, char *argv[])
             if (count > product->get_available_count())
             {
                 std::cout << "Sorry but there are only "
-                          << product->get_available_count()
-                          << " of this product left in stock!\n";
+                        << product->get_available_count()
+                        << " of this product left in stock!\n";
                 continue;
             }
             if (product_order_index == -1)
@@ -279,8 +279,25 @@ int main(int argc, char *argv[])
             else
                 break;
         }
+        std::string phone_number, check;
+        std::cout << "Please enter the customer's phone number(e.g. +989112223333): ";
+        while (true)
+        {
+            std::cin >> phone_number;
+            if (validate_phone_number(phone_number))
+                break;
+            else
+            {
+                std::cout << "Sorry but I don't recognize this phone number format...\n"
+                          << "Are you sure that's correct?(Y/n): ";
+                std::cin >> check;
+                if (check == "y" || check == "Y")
+                    break;
+                std::cout << "Please enter a valid phone number(e.g. +989445556666): ";
+            }
+        }
         std::cout << "Creating a new order..." << std::endl;
-        orders.add_order(product_orders, discount);
+        orders.add_order(product_orders, phone_number, discount);
     }
     else if (*command == "list-orders")
     {

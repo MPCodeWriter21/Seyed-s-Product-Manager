@@ -14,6 +14,7 @@
 #include <string>
 #include <tchar.h>
 
+// Close Buttons
 bool add_product_button = false;
 bool new_order_button = false;
 bool orders_button = false;
@@ -21,7 +22,9 @@ bool dokme_Gardesh_mali = false;
 bool products_button = false;
 bool theme_button = false;
 bool dark_theme_button = true;
-void new_order(Orders &orders, Products &products); //, bool new_order_button );
+
+// Functions
+void new_order(Orders &orders, Products &products);
 void turnover(Orders &orders, Products &products, char *from_date, char *to_date);
 void AddProduct(
     char *name_,
@@ -252,7 +255,7 @@ int run_gui(std::filesystem::path executable_path, Users &database)
             }
         }
         // New Product Window
-        ImGui::SetNextWindowSize(ImVec2(300, 250));
+        ImGui::SetNextWindowSize(ImVec2(350, 250));
         if (add_product_button)
         {
             if (ImGui::Begin(
@@ -306,14 +309,12 @@ int run_gui(std::filesystem::path executable_path, Users &database)
                     ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize
                 ))
             {
-                ImGui::BeginTable("##", 5, ImGuiTableFlags_RowBg);
                 const std::vector<Order> &list_of_orders = orders.list_orders(products);
                 for (unsigned int i = 0; i < list_of_orders.size(); i++)
                 {
                     show_info_gui_order(list_of_orders[i]);
                     std::cout << std::endl;
                 }
-                ImGui::EndTable();
             }
             ImGui::End();
         }
@@ -339,7 +340,7 @@ int run_gui(std::filesystem::path executable_path, Users &database)
             ImGui::End();
         }
         // Products Window
-        ImGui::SetNextWindowSize(ImVec2(700, 600));
+        ImGui::SetNextWindowSize(ImVec2(600, 600));
         if (products_button)
         {
             if (ImGui::Begin(
@@ -624,7 +625,7 @@ void turnover(Orders &orders, Products &products, char *from_date, char *to_date
     new_order_button = false;
 }
 
-void new_order(Orders &orders, Products &products) //, bool new_order_button)
+void new_order(Orders &orders, Products &products)
 {
     std::vector<ProductOrder> product_orders;
     int product_id, count;
@@ -751,10 +752,8 @@ void stylish ()
 	style.ScrollbarRounding = 9.0f;
 	style.GrabMinSize = 5.0f;
 	style.GrabRounding = 3.0f;
-
 	style.Colors[ImGuiCol_Text] = ImVec4(0.80f, 0.80f, 0.83f, 1.00f);
 	style.Colors[ImGuiCol_TextDisabled] = ImVec4(0.24f, 0.23f, 0.29f, 1.00f);
-	//style.Colors[ImGuiCol_WindowBg] = ImVec4(0.06f, 0.05f, 0.07f, 1.00f);
     style.Colors[ImGuiCol_WindowBg] = ImVec4(0.16f, 0.16f, 0.16f, 1.00f);
 	style.Colors[ImGuiCol_PopupBg] = ImVec4(0.07f, 0.07f, 0.09f, 1.00f);
 	style.Colors[ImGuiCol_Border] = ImVec4(0.80f, 0.80f, 0.83f, 0.88f);
