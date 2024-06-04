@@ -29,7 +29,6 @@ class Product : public DatabaseObject
     void set_available_count(const unsigned int available_count);
     void set_description(const std::string description);
     void show_info() const;
-
     std::function<void(Product &)> on_change_callback;
 
   protected:
