@@ -36,6 +36,7 @@ ProductOrder ProductOrder::from_string(const std::string &data, Products &produc
 
 std::string Order::items = "id INTEGER PRIMARY KEY AUTOINCREMENT, "
                            "product_orders TEXT NOT NULL, "
+                           "customer_name TEXT, "
                            "phone_number TEXT NOT NULL, "
                            "pay_date REAL DEFAULT 0, "
                            "discount INTEGER DEFAULT 0";
@@ -44,14 +45,15 @@ Order::Order(
     unsigned int id,
     const std::vector<ProductOrder> &product_orders,
     Orders &parent,
+    const std::string &name,
     const std::string &phone_number,
     const double &pay_date,
     const int &discount,
     const std::function<void(Order &)> &on_change_callback
 )
     : DatabaseObject(items), on_change_callback(on_change_callback), id(id),
-      product_orders(product_orders), phone_number(phone_number), pay_date(pay_date),
-      parent(parent)
+      product_orders(product_orders), customer_name(name), phone_number(phone_number),
+      pay_date(pay_date), parent(parent)
 {
     if (discount < 0)
         error("We cannot have negative discounts.");
@@ -103,6 +105,17 @@ void Order::remove_product_order(int index)
 void Order::set_product_order(int index, const ProductOrder &product_order)
 {
     product_orders[index] = product_order;
+    call_callbacks();
+}
+
+const std::string &Order::get_customer_name() const
+{
+    return customer_name;
+}
+
+void Order::set_customer_name(const std::string &customer_name)
+{
+    this->customer_name = customer_name;
     call_callbacks();
 }
 
@@ -188,6 +201,7 @@ void Order::show_info() const
     std::cout << "Order ID               : " << get_id() << std::endl;
     std::cout << "Total price            : " << std::setprecision(2) << std::fixed
               << get_total() << std::endl;
+    std::cout << "Customer Name          : " << customer_name << std::endl;
     std::cout << "Phone Number           : " << phone_number << std::endl;
     if (get_total() != get_total_after_discount())
         std::cout << "Total with " << std::setw(2) << discount
@@ -273,6 +287,7 @@ Order Order::from_string(
     const unsigned int id,
     const std::string &data,
     Orders &parent,
+    const std::string &customer_name,
     const std::string &phone_number,
     const double &pay_date,
     Products &products,
@@ -280,7 +295,8 @@ Order Order::from_string(
 )
 {
     return Order(
-        id, Order::from_string(data, products), parent, phone_number, pay_date, discount
+        id, Order::from_string(data, products), parent, customer_name, phone_number,
+        pay_date, discount
     );
 }
 
@@ -298,6 +314,7 @@ Orders::Orders(Orders &orders) : Database(orders)
 
 void Orders::add_order(
     const std::vector<ProductOrder> &product_orders,
+    const std::string name,
     const std::string phone_number,
     const int &discount
 )
@@ -308,8 +325,9 @@ void Orders::add_order(
         error("We cannot have a discount greater than 100%");
 
     execute(
-        "INSERT INTO orders(product_orders, phone_number, discount) VALUES(?, ?, ?)",
-        {Order::to_string(product_orders), phone_number, std::to_string(discount)}
+        "INSERT INTO orders(product_orders, customer_name, phone_number, discount) "
+        "VALUES(?,?,?,?)",
+        {Order::to_string(product_orders), name, phone_number, std::to_string(discount)}
     );
 
     if (status_code != SQLITE_OK)
@@ -332,8 +350,8 @@ Order *Orders::get_order(const unsigned int &id, Products &products)
         Record &order_info = records[0];
         return new Order(
             std::stoi(order_info[0]), Order::from_string(order_info[1], products),
-            *this, order_info[2], std::stod(order_info[3]), std::stoi(order_info[4]),
-            [this](Order &p) { this->save_changed_order(p); }
+            *this, order_info[2], order_info[3], std::stod(order_info[4]),
+            std::stoi(order_info[5]), [this](Order &p) { this->save_changed_order(p); }
         );
     }
     return nullptr;
@@ -377,8 +395,8 @@ std::vector<Order> Orders::get_orders(
         const Record &order_info = records[i];
         orders.push_back(Order(
             std::stoi(order_info[0]), Order::from_string(order_info[1], products),
-            *this, order_info[2], std::stod(order_info[3]), std::stoi(order_info[4]),
-            [this](Order &p) { this->save_changed_order(p); }
+            *this, order_info[2], order_info[3], std::stod(order_info[4]),
+            std::stoi(order_info[5]), [this](Order &p) { this->save_changed_order(p); }
         ));
     }
     return orders;
@@ -393,8 +411,8 @@ std::vector<Order> Orders::list_orders(Products &products)
         const Record &order_info = records[i];
         orders.push_back(Order(
             std::stoi(order_info[0]), Order::from_string(order_info[1], products),
-            *this, order_info[2], std::stod(order_info[3]), std::stoi(order_info[4]),
-            [this](Order &p) { this->save_changed_order(p); }
+            *this, order_info[2], order_info[3], std::stod(order_info[4]),
+            std::stoi(order_info[5]), [this](Order &p) { this->save_changed_order(p); }
         ));
     }
     return orders;
@@ -408,8 +426,10 @@ void Orders::set_database_path(std::string path)
 void Orders::save_changed_order(Order &order)
 {
     execute(
-        "UPDATE orders SET product_orders=?, phone_number=?, pay_date=?, discount=? WHERE id=?",
-        {order.to_string(), order.get_phone_number(), std::to_string(order.get_pay_julian_day()),
+        "UPDATE orders SET product_orders=?, customer_name=?, phone_number=?, pay_date=?, discount=? "
+        "WHERE id=?",
+        {order.to_string(), order.get_customer_name(), order.get_phone_number(),
+         std::to_string(order.get_pay_julian_day()),
          std::to_string(order.get_discount()), std::to_string(order.get_id())}
     );
 }

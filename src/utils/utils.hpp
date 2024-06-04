@@ -19,3 +19,11 @@ class comma_numpunct : public std::numpunct<char>
 void enable_comma_locale();
 
 bool validate_phone_number(const std::string &phone_number);
+
+int get_int();
+long get_long();
+unsigned long get_ulong();
+long long get_ll();
+unsigned long long get_ull(
+    const std::string &message = "", const std::string &error_message = "Bad Input!"
+);

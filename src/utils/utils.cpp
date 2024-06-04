@@ -23,8 +23,8 @@ std::string escape_string(const std::string &text)
 {
     std::string escaped(text);
     replace(escaped, "\\", "\\\\");
-    replace(escaped, "\"", "\\\"");
-    replace(escaped, "\'", "\\\'");
+    replace(escaped, "\"", "\"\"");
+    replace(escaped, "\'", "\'\'");
     return escaped;
 }
 
@@ -70,4 +70,56 @@ bool validate_phone_number(const std::string &phone_number)
     if (std::regex_match(phone_number, std::regex(PHONE_REGEX)))
         return true;
     return false;
+}
+
+int get_int()
+{
+    std::string str;
+    std::cin.ignore();
+    std::getline(std::cin, str);
+    return std::stoi(str);
+}
+
+long get_long()
+{
+    std::string str;
+    std::cin.ignore();
+    std::getline(std::cin, str);
+    return std::stol(str);
+}
+
+unsigned long get_ulong()
+{
+    std::string str;
+    std::cin.ignore();
+    std::getline(std::cin, str);
+    return std::stoul(str);
+}
+
+long long get_ll()
+{
+    std::string str;
+    std::cin.ignore();
+    std::getline(std::cin, str);
+    return std::stoll(str);
+}
+
+unsigned long long get_ull(const std::string &message, const std::string &error_message)
+{
+    while (true)
+    {
+        std::cout << message;
+        try
+        {
+            std::string str;
+            // std::cin.ignore();
+            std::getline(std::cin, str);
+            // std::cout << '`' << str << '`' << std::endl;
+            return std::stoull(str);
+        }
+        catch (std::exception ex)
+        {
+            std::cout << error_message << std::endl;
+        }
+    }
 }

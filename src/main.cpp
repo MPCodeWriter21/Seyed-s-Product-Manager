@@ -215,11 +215,13 @@ int main(int argc, char *argv[])
     else if (*command == "new-order")
     {
         std::vector<ProductOrder> product_orders;
-        unsigned int product_id, count;
+        size_t product_id, count;
         while (true)
         {
-            std::cout << "Enter the product id (or 0 to stop): ";
-            std::cin >> product_id;
+            product_id = get_ull(
+                "Enter the product id (or 0 to stop): ",
+                "Product IDs are positive integers starting from 1!"
+            );
             if (product_id == 0)
                 break;
             Product *product = products.get_product(product_id);
@@ -237,12 +239,17 @@ int main(int argc, char *argv[])
                     break;
                 }
             }
+            std::string message;
+            std::cout << "Adding `" << product->get_name() << "`" << std::endl
+                      << "Available count: " << product->get_available_count()
+                      << std::endl;
             if (product_order_index == -1)
-                std::cout << "Enter the number of products: ";
+                message = "Enter the number of products: ";
             else
-                std::cout << "Enter the number of products(Currently "
-                          << product_orders[product_order_index].count << "): ";
-            std::cin >> count;
+                message = "Enter the number of products(Currently " +
+                          std::to_string(product_orders[product_order_index].count) +
+                          "): ";
+            count = get_ull(message, "Dude! We need a positive number for the count!");
             if (count < 1)
             {
                 std::cout << "No product was added to the order!\n";
@@ -256,9 +263,16 @@ int main(int argc, char *argv[])
                 continue;
             }
             if (product_order_index == -1)
+            {
                 product_orders.push_back(ProductOrder(*product, count));
+                std::cout << "Added " << count << " products to the order.\n";
+            }
             else
+            {
                 product_orders[product_order_index].count = count;
+                std::cout << "There are now " << count
+                          << " `" + product->get_name() + "`s in this order.\n";
+            }
         }
         if (product_orders.size() < 1)
         {
@@ -266,20 +280,37 @@ int main(int argc, char *argv[])
             return 0;
         }
         int discount = 0;
-        std::cout << "Any discounts? If not just enter 0: ";
+        discount = get_ull("Any discounts? If not just enter 0: ");
         while (true)
         {
-            std::cin >> discount;
             if (discount < 0 || discount > 100)
             {
                 std::cout << "Sorry but it's not possible to have a " << discount
                           << "% discount!" << std::endl
                           << "Maybe try again? Discount(0-100): ";
+                discount = get_ull("");
             }
             else
                 break;
         }
-        std::string phone_number, check;
+        std::string customer_name, check;
+        std::cout << "Please enter the customer's name: ";
+        while (true)
+        {
+            std::getline(std::cin, customer_name);
+            if (customer_name == "")
+            {
+                std::cout
+                    << "Are you sure you want to add no name for the customer? (Y/n)";
+                std::getline(std::cin, check);
+                if (check == "y" || check == "Y")
+                    break;
+                std::cout << "Please enter a name for the customer: ";
+            }
+            else
+                break;
+        }
+        std::string phone_number;
         std::cout << "Please enter the customer's phone number(e.g. +989112223333): ";
         while (true)
         {
@@ -297,7 +328,7 @@ int main(int argc, char *argv[])
             }
         }
         std::cout << "Creating a new order..." << std::endl;
-        orders.add_order(product_orders, phone_number, discount);
+        orders.add_order(product_orders, customer_name, phone_number, discount);
     }
     else if (*command == "list-orders")
     {

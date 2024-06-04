@@ -28,6 +28,7 @@ class Order : public DatabaseObject
         unsigned int id,
         const std::vector<ProductOrder> &product_orders,
         Orders &parent,
+        const std::string &name,
         const std::string &phone_number,
         const double &pay_date = 0,
         const int &discount = 0,
@@ -42,6 +43,8 @@ class Order : public DatabaseObject
     void add_product_order(const ProductOrder &product_order);
     void remove_product_order(int index);
     void set_product_order(int index, const ProductOrder &product_order);
+    const std::string &get_customer_name() const;
+    void set_customer_name(const std::string &customer_name);
     const std::string &get_phone_number() const;
     void set_phone_number(const std::string &phone_number);
     const int &get_discount() const;
@@ -61,6 +64,7 @@ class Order : public DatabaseObject
         const unsigned int id,
         const std::string &data,
         Orders &parent,
+        const std::string &customer_name,
         const std::string &phone_number,
         const double &pay_date,
         Products &products,
@@ -74,7 +78,7 @@ class Order : public DatabaseObject
 
     unsigned int id;
     std::vector<ProductOrder> product_orders;
-    std::string phone_number;
+    std::string customer_name, phone_number;
     double pay_date;
     int discount;
     Orders &parent;
@@ -89,6 +93,7 @@ class Orders : protected Database
     Orders(Orders &products);
     void add_order(
         const std::vector<ProductOrder> &product_orders,
+        const std::string name,
         const std::string phone_number,
         const int &discount
     );
