@@ -56,7 +56,7 @@ ifeq ($(BUILD_GUI),yes)
 	CXXFLAGS := $(CXXFLAGS) -D GUI
 endif
 
-ifeq ($(ARCH), "")
+ifeq ($(ARCH),)
 	CXXFLAGS := $(CXXFLAGS)
 else
 	CXXFLAGS := $(CXXFLAGS) -march=$(ARCH)

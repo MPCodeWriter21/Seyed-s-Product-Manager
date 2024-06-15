@@ -10,7 +10,7 @@
     #define DISABLE_WARNING_UNREFERENCED_FUNCTION         DISABLE_WARNING(4505)
     // other warnings you want to deactivate...
     
-#elif defined(__GNUC__) || defined(__clang__)
+#elif defined(__clang__)
     #define DO_PRAGMA(X) _Pragma(#X)
     #define DISABLE_WARNING_PUSH          DO_PRAGMA(GCC diagnostic push)
     #define DISABLE_WARNING_POP           DO_PRAGMA(GCC diagnostic pop) 
